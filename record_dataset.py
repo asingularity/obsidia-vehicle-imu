@@ -1,16 +1,18 @@
 
 import time
 from datetime import datetime
+
 import board
 from adafruit_lsm6ds.lsm6dsox import LSM6DSOX
+import busio
+
 from fps_counter import FPSCounter
 
 
 def record_dataset():
-
-    i2c = board.I2C()  # uses board.SCL and board.SDA
-    # i2c = board.STEMMA_I2C()  # For using the built-in STEMMA QT connector on a microcontroller
+    i2c = busio.I2C(board.SCL, board.SDA)
     sensor = LSM6DSOX(i2c)
+
     fps = FPSCounter(params={'display_every_k_seconds': 1})
 
     f = open('tmp_accel_gyro.txt')
@@ -28,7 +30,7 @@ def record_dataset():
         timestamp = datetime.now().isoformat()
         accel = sensor.acceleration
         gyro = sensor.gyro
-        f.write(timestamp + ', ' + str(accel) + ', ' + str(gyro))
+        f.write(timestamp + ', ' + str(accel[0]) + ', ' + str(accel[1]) + ', ' + str(accel[2]))
 
         fps.update()
 
