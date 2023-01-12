@@ -15,7 +15,7 @@ def record_dataset():
 
     fps = FPSCounter(params={'display_every_k_seconds': 1})
 
-    f = open('tmp_accel_gyro.txt')
+    f = open('tmp_accel_gyro.txt', 'w')
 
     print()
     print('starting recording...')
