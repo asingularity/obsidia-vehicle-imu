@@ -30,7 +30,7 @@ def record_dataset():
         timestamp = datetime.now().isoformat()
         accel = sensor.acceleration
         gyro = sensor.gyro
-        f.write(timestamp + ', ' + str(accel[0]) + ', ' + str(accel[1]) + ', ' + str(accel[2]))
+        f.write(timestamp + ', ' + str(accel[0]) + ', ' + str(accel[1]) + ', ' + str(accel[2]) + '\n')
 
         fps.update()
 
