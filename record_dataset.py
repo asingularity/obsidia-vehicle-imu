@@ -15,7 +15,7 @@ import keyboard
 
 
 DATASET_TIMESTAMP = datetime.now().isoformat()
-F_GROUND_TRUTH = open('/home/csaba/datasets/' + DATASET_TIMESTAMP + '_ground_truth.txt', 'w')
+F_GROUND_TRUTH = open('/home/csaba/projects/datasets/' + DATASET_TIMESTAMP + '_ground_truth.txt', 'w')
 
 
 LED_EVENT_START_TIME = time.time()
@@ -103,7 +103,7 @@ def record_dataset():
 
     fps = FPSCounter(params={'display_every_k_seconds': 1})
 
-    f = open('/home/csaba/datasets/' + DATASET_TIMESTAMP + '_accelerometer.txt', 'w')
+    f = open('/home/csaba/projects/datasets/' + DATASET_TIMESTAMP + '_accelerometer.txt', 'w')
 
     print()
     print('starting recording...')
