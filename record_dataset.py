@@ -81,7 +81,7 @@ def on_keypress(e):
         on_other_event()
 
 
-keyboard.on_press(on_keypress, suppress=False)
+keyboard.on_press(on_keypress, suppress=True)
 
 #
 # keyboard.add_hotkey('1', on_accelerate_event)
