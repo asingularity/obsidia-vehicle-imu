@@ -18,41 +18,55 @@ DATASET_TIMESTAMP = datetime.now().isoformat()
 F_GROUND_TRUTH = open('/home/csaba/datasets/' + DATASET_TIMESTAMP + '_ground_truth.txt', 'w')
 
 
+LED_EVENT_START_TIME = time.time()
+
+
 # catch keyboard events for ground truth:
 def on_accelerate_event():
-    print()
-    print('ground truth: accelerate event!')
-    print()
+    # print()
+    # print('ground truth: accelerate event!')
+    # print()
 
     timestamp = datetime.now().isoformat()
     F_GROUND_TRUTH.write(timestamp + ' ' + 'accelerate' + '\n')
 
+    global LED_EVENT_START_TIME
+    LED_EVENT_START_TIME = time.time()
 
 def on_turn_event():
-    print()
-    print('ground truth: turn event!')
-    print()
+    # print()
+    # print('ground truth: turn event!')
+    # print()
 
     timestamp = datetime.now().isoformat()
     F_GROUND_TRUTH.write(timestamp + ' ' + 'turn' + '\n')
 
+    global LED_EVENT_START_TIME
+    LED_EVENT_START_TIME = time.time()
+
 
 def on_break_event():
-    print()
-    print('ground truth: break event!')
-    print()
+    # print()
+    # print('ground truth: break event!')
+    # print()
 
     timestamp = datetime.now().isoformat()
     F_GROUND_TRUTH.write(timestamp + ' ' + 'break' + '\n')
 
+    global LED_EVENT_START_TIME
+    LED_EVENT_START_TIME = time.time()
+
 
 def on_other_event():
-    print()
-    print('ground truth: other event!')
-    print()
+    # print()
+    # print('ground truth: other event!')
+    # print()
 
     timestamp = datetime.now().isoformat()
     F_GROUND_TRUTH.write(timestamp + ' ' + 'other' + '\n')
+
+    global LED_EVENT_START_TIME
+    LED_EVENT_START_TIME = time.time()
 
 
 keyboard.add_hotkey('1', on_accelerate_event)
@@ -96,6 +110,7 @@ def record_dataset():
     print()
 
     last_led_time = time.time()
+    global LED_EVENT_START_TIME
 
     #t0 = time.time()
     while True:  #time.time() < t0 + 10:
@@ -103,8 +118,13 @@ def record_dataset():
         #print("Gyro X:%.2f, Y: %.2f, Z: %.2f radians/s" % (sensor.gyro))
         #print("")
 
-        if time.time() - last_led_time > 0.5:
+        if time.time() - LED_EVENT_START_TIME < 0.5:
+            led_blue.value = True
+            led_red.value = False
+        elif time.time() - last_led_time > 0.5:
+            led_red.value = True
             led_blue.value = not led_blue.value  # flash blue at 2 Hz
+            last_led_time = time.time()
 
         timestamp = datetime.now().isoformat()
         accel = sensor.acceleration
