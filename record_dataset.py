@@ -10,8 +10,58 @@ import digitalio
 
 from fps_counter import FPSCounter
 
+import keyboard
+
+
+DATASET_TIMESTAMP = datetime.now().isoformat()
+F_GROUND_TRUTH = open('/home/csaba/datasets/' + DATASET_TIMESTAMP + '_ground_truth.txt', 'w')
+
+
+# catch keyboard events for ground truth:
+def on_accelerate_event():
+    print()
+    print('ground truth: accelerate event!')
+    print()
+
+    timestamp = datetime.now().isoformat()
+    F_GROUND_TRUTH.write(timestamp + ' ' + 'accelerate' + '\n')
+
+
+def on_turn_event():
+    print()
+    print('ground truth: turn event!')
+    print()
+
+    timestamp = datetime.now().isoformat()
+    F_GROUND_TRUTH.write(timestamp + ' ' + 'turn' + '\n')
+
+
+def on_break_event():
+    print()
+    print('ground truth: break event!')
+    print()
+
+    timestamp = datetime.now().isoformat()
+    F_GROUND_TRUTH.write(timestamp + ' ' + 'break' + '\n')
+
+
+def on_other_event():
+    print()
+    print('ground truth: other event!')
+    print()
+
+    timestamp = datetime.now().isoformat()
+    F_GROUND_TRUTH.write(timestamp + ' ' + 'other' + '\n')
+
+
+keyboard.add_hotkey('1', on_accelerate_event)
+keyboard.add_hotkey('2', on_turn_event)
+keyboard.add_hotkey('3', on_break_event)
+keyboard.add_hotkey('4', on_other_event)
+
 
 def record_dataset():
+
     i2c = busio.I2C(board.SCL, board.SDA)
     sensor = LSM6DSOX(i2c)
 
@@ -38,8 +88,7 @@ def record_dataset():
 
     fps = FPSCounter(params={'display_every_k_seconds': 1})
 
-    timestamp = datetime.now().isoformat()
-    f = open('/home/csaba/datasets/' + timestamp + '_accelerometer.txt', 'w')
+    f = open('/home/csaba/datasets/' + DATASET_TIMESTAMP + '_accelerometer.txt', 'w')
 
     print()
     print('starting recording...')

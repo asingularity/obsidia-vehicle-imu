@@ -1,2 +1,2 @@
 adafruit-circuitpython-lsm6ds
-numpy
+keyboard
