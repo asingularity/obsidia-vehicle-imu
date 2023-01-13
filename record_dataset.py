@@ -3,7 +3,8 @@ import time
 from datetime import datetime
 
 import board
-from adafruit_lsm6ds.lsm6dsox import LSM6DSOX
+from adafruit_lsm6ds.ism330dhcx import ISM330DHCX
+#from adafruit_lsm6ds.lsm6dsox import LSM6DSOX
 from adafruit_lsm6ds import Rate, AccelRange, GyroRange
 import busio
 import digitalio
@@ -63,7 +64,7 @@ keyboard.add_hotkey('4', on_other_event)
 def record_dataset():
 
     i2c = busio.I2C(board.SCL, board.SDA)
-    sensor = LSM6DSOX(i2c)
+    sensor = ISM330DHCX(i2c)
 
     # old:
     #         self.redPin = 15
