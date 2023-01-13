@@ -69,10 +69,25 @@ def on_other_event():
     LED_EVENT_START_TIME = time.time()
 
 
-keyboard.add_hotkey('1', on_accelerate_event)
-keyboard.add_hotkey('2', on_turn_event)
-keyboard.add_hotkey('3', on_break_event)
-keyboard.add_hotkey('4', on_other_event)
+# define the callback function
+def on_keypress(e):
+    if e.name == '1':
+        on_accelerate_event()
+    if e.name == '2':
+        on_turn_event()
+    if e.name == '3':
+        on_break_event()
+    if e.name == '4':
+        on_other_event()
+
+
+keyboard.on_press(on_keypress, suppress=False)
+
+#
+# keyboard.add_hotkey('1', on_accelerate_event)
+# keyboard.add_hotkey('2', on_turn_event)
+# keyboard.add_hotkey('3', on_break_event)
+# keyboard.add_hotkey('4', on_other_event)
 
 
 def record_dataset():
@@ -132,6 +147,10 @@ def record_dataset():
         f.write(timestamp + ',' + str(accel[0]) + ',' + str(accel[1]) + ',' + str(accel[2]) + '\n')
 
         fps.update()
+
+        event = keyboard.read_event()
+        if event is not None:
+            on_keypress(event)
 
     # Not used for infinite recording:
 
