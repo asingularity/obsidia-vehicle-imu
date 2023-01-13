@@ -15,8 +15,9 @@ import keyboard
 
 
 DATASET_TIMESTAMP = datetime.now().isoformat()
-F_GROUND_TRUTH = open('/home/csaba/projects/datasets/' + DATASET_TIMESTAMP + '_ground_truth.txt', 'w')
-
+GROUND_TRUTH_FILE_NAME = '/home/csaba/projects/datasets/' + DATASET_TIMESTAMP + '_ground_truth.txt'
+F_GROUND_TRUTH = open(GROUND_TRUTH_FILE_NAME, 'w')
+F_GROUND_TRUTH.close()
 
 LED_EVENT_START_TIME = time.time()
 
@@ -28,7 +29,9 @@ def on_accelerate_event():
     # print()
 
     timestamp = datetime.now().isoformat()
-    F_GROUND_TRUTH.write(timestamp + ' ' + 'accelerate' + '\n')
+    f_g = open(GROUND_TRUTH_FILE_NAME, 'a')
+    f_g.write(timestamp + ' ' + 'accelerate' + '\n')
+    f_g.close()
 
     global LED_EVENT_START_TIME
     LED_EVENT_START_TIME = time.time()
@@ -39,7 +42,9 @@ def on_turn_event():
     # print()
 
     timestamp = datetime.now().isoformat()
-    F_GROUND_TRUTH.write(timestamp + ' ' + 'turn' + '\n')
+    f_g = open(GROUND_TRUTH_FILE_NAME, 'a')
+    f_g.write(timestamp + ' ' + 'turn' + '\n')
+    f_g.close()
 
     global LED_EVENT_START_TIME
     LED_EVENT_START_TIME = time.time()
@@ -51,7 +56,9 @@ def on_break_event():
     # print()
 
     timestamp = datetime.now().isoformat()
-    F_GROUND_TRUTH.write(timestamp + ' ' + 'break' + '\n')
+    f_g = open(GROUND_TRUTH_FILE_NAME, 'a')
+    f_g.write(timestamp + ' ' + 'break' + '\n')
+    f_g.close()
 
     global LED_EVENT_START_TIME
     LED_EVENT_START_TIME = time.time()
@@ -63,7 +70,9 @@ def on_other_event():
     # print()
 
     timestamp = datetime.now().isoformat()
-    F_GROUND_TRUTH.write(timestamp + ' ' + 'other' + '\n')
+    f_g = open(GROUND_TRUTH_FILE_NAME, 'a')
+    f_g.write(timestamp + ' ' + 'other' + '\n')
+    f_g.close()
 
     global LED_EVENT_START_TIME
     LED_EVENT_START_TIME = time.time()
