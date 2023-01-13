@@ -148,9 +148,9 @@ def record_dataset():
 
         fps.update()
 
-        event = keyboard.read_event()
-        if event is not None:
-            on_keypress(event)
+        #event = keyboard.read_event()
+        #if event is not None:
+        #    on_keypress(event)
 
     # Not used for infinite recording:
 
