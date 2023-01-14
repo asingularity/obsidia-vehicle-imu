@@ -1,2 +1,5 @@
 adafruit-circuitpython-lsm6ds
 keyboard
+numpy
+matplotlib
+scipy
