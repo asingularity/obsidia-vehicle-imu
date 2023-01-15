@@ -142,7 +142,7 @@ def record_dataset():
         #print("Gyro X:%.2f, Y: %.2f, Z: %.2f radians/s" % (sensor.gyro))
         #print("")
 
-        if time.time() - LED_EVENT_START_TIME < 0.5:
+        if time.time() - LED_EVENT_START_TIME < 2.0:
             led_blue.value = True
             led_red.value = False
         elif time.time() - last_led_time > 0.5:

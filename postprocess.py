@@ -108,14 +108,30 @@ def _load_ground_truth_file(filename):
 
 def main():
 
+    #dataset_timestamp = '2023-01-13T11:57:10.525044'  # first car dataset
+    dataset_timestamp = '2023-01-13T14:28:30.932444'  # living room, test dataset
+
     num_subplots = 5
     fig_bar, ax = plt.subplots(nrows=num_subplots, ncols=1, sharex=True, figsize=(40, 20))
 
-    timestamp_arr_acc, acc_x_arr, acc_y_arr, acc_z_arr, acc_abs_arr = _load_acc_file(filename='2023-01-13T11:57:10.525044_accelerometer.txt')
-    timestamp_arr_gt, events_arr = _load_ground_truth_file(filename='2023-01-13T11:57:10.525044_ground_truth.txt')
+    timestamp_arr_acc, acc_x_arr, acc_y_arr, acc_z_arr, acc_abs_arr = _load_acc_file(filename=dataset_timestamp + '_accelerometer.txt')
+    timestamp_arr_gt, events_arr = _load_ground_truth_file(filename=dataset_timestamp + '_ground_truth.txt')
 
-    save_array_to_mat('2023-01-13T11:57:10.525044_accelerometer.mat', np.hstack((timestamp_arr_acc[:, np.newaxis], acc_x_arr[:, np.newaxis], acc_y_arr[:, np.newaxis], acc_z_arr[:, np.newaxis])), 'accelerometer')
-    save_array_to_mat('2023-01-13T11:57:10.525044_ground_truth_events.mat', np.hstack((timestamp_arr_gt[:, np.newaxis], events_arr[:, np.newaxis])), 'ground_truth_events')
+    if dataset_timestamp.startswith('2023-01-13T14:28:30.932444'):
+        for k in range(len(timestamp_arr_acc)):
+            # 19233 1088937.5876090527
+            # 19234 1179017.7017669678
+            if timestamp_arr_acc[k] < 1179017:
+                timestamp_arr_acc[k] = timestamp_arr_acc[k] + (1179017.7017669678 - 1088937.5876090527)
+            #print(k, timestamp_arr_acc[k])
+
+    #print(timestamp_arr_acc)
+    #print()
+    #print(timestamp_arr_gt)
+    #print()
+
+    save_array_to_mat(dataset_timestamp + '_accelerometer.mat', np.hstack((timestamp_arr_acc[:, np.newaxis], acc_x_arr[:, np.newaxis], acc_y_arr[:, np.newaxis], acc_z_arr[:, np.newaxis])), 'accelerometer')
+    save_array_to_mat(dataset_timestamp + '_ground_truth_events.mat', np.hstack((timestamp_arr_gt[:, np.newaxis], events_arr[:, np.newaxis])), 'ground_truth_events')
 
     ax[0].cla()
     ax[0].plot(timestamp_arr_acc, acc_x_arr, 'r.')
