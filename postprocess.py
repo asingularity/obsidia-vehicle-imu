@@ -7,7 +7,7 @@ matplotlib.use('Agg')
 matplotlib.rcParams['agg.path.chunksize'] = 10000
 import matplotlib.pyplot as plt
 
-from matlab_utils import save_array_to_mat
+from matlab_utils import save_array_to_mat, get_array_from_mat
 
 REF_TIMESTAMP = '2023-01-01T00:00:00.000000'
 
@@ -106,10 +106,7 @@ def _load_ground_truth_file(filename):
     return timestamp_arr, events_arr
 
 
-def main():
-
-    #dataset_timestamp = '2023-01-13T11:57:10.525044'  # first car dataset
-    dataset_timestamp = '2023-01-13T14:28:30.932444'  # living room, test dataset
+def postprocess_new_data(dataset_timestamp):
 
     num_subplots = 5
     fig_bar, ax = plt.subplots(nrows=num_subplots, ncols=1, sharex=True, figsize=(40, 20))
@@ -171,6 +168,86 @@ def main():
         ax[3].axvline(x=event_t, color='g')
 
     fig_bar.savefig("all_data.png", dpi=100)
+
+
+def postporcess_with_results(dataset_timestamp):
+
+    timestamp_arr_acc, acc_x_arr, acc_y_arr, acc_z_arr, acc_abs_arr = _load_acc_file(filename=dataset_timestamp + '_accelerometer.txt')
+    timestamp_arr_gt, events_arr = _load_ground_truth_file(filename=dataset_timestamp + '_ground_truth.txt')
+
+    results_start_time = 250
+
+    results_tu = get_array_from_mat(mat_filename=dataset_timestamp + '_RESULT_tu.mat').flatten()
+    results_fdet = get_array_from_mat(mat_filename=dataset_timestamp + '_RESULT_fdet.mat').flatten()
+
+    print()
+    print(results_tu.shape)
+    #print(results_tu)
+    print()
+
+    print()
+    print(results_fdet.shape)
+    #print(results_fdet)
+    print()
+
+    num_subplots = 4
+    fig_bar, ax = plt.subplots(nrows=num_subplots, ncols=1, sharex=True, figsize=(40, 20))
+
+    ax[0].cla()
+    ax[0].plot(timestamp_arr_acc, acc_x_arr, 'r.')
+    ax[0].get_xaxis().get_major_formatter().set_scientific(False)
+    ax[0].get_yaxis().get_major_formatter().set_scientific(False)
+    ax[0].set_title('accelerometer X')
+
+    ax[1].cla()
+    ax[1].plot(timestamp_arr_acc, acc_y_arr, 'g.')
+    ax[1].get_xaxis().get_major_formatter().set_scientific(False)
+    ax[1].get_yaxis().get_major_formatter().set_scientific(False)
+    ax[1].set_title('accelerometer Y')
+
+    ax[2].cla()
+    ax[2].plot(timestamp_arr_acc, acc_z_arr, 'b.')
+    ax[2].get_xaxis().get_major_formatter().set_scientific(False)
+    ax[2].get_yaxis().get_major_formatter().set_scientific(False)
+    ax[2].set_title('accelerometer Z')
+
+    # ax[3].cla()
+    # ax[3].plot(timestamp_arr_acc, acc_abs_arr, 'k.')
+    # ax[3].get_xaxis().get_major_formatter().set_scientific(False)
+    # ax[3].get_yaxis().get_major_formatter().set_scientific(False)
+    # ax[3].set_title('accelerometer ABS')
+
+    # ax[4].cla()
+    # ax[4].plot(timestamp_arr_gt, events_arr, 'ko')
+    # ax[4].get_xaxis().get_major_formatter().set_scientific(False)
+    # ax[4].get_yaxis().get_major_formatter().set_scientific(False)
+    # ax[4].set_title('ground truth events: 1:accelerate, 2:turn, 3:break, 4:bump')
+
+    ax[3].cla()
+    ax[3].plot(timestamp_arr_acc[0] + results_start_time + results_tu, results_fdet, 'k-')
+    ax[3].get_xaxis().get_major_formatter().set_scientific(False)
+    ax[3].get_yaxis().get_major_formatter().set_scientific(False)
+    ax[3].set_title('anomaly detection')
+
+    for k in range(len(events_arr)):
+        event_t = timestamp_arr_gt[k]
+        event_type = events_arr[k]
+
+        ax[0].axvline(x=event_t, color='g')
+        ax[1].axvline(x=event_t, color='g')
+        ax[2].axvline(x=event_t, color='g')
+        #ax[3].axvline(x=event_t, color='g')
+
+    fig_bar.savefig(dataset_timestamp + "_results.png", dpi=100)
+
+
+def main():
+    dataset_timestamp = '2023-01-13T11:57:10.525044'  # first car dataset
+    # dataset_timestamp = '2023-01-13T14:28:30.932444'  # living room, test dataset; confusing
+    # dataset_timestamp = '2023-01-14T17:03:46.266499'  # seated, should be more clear. X, Y, Z separate mostly
+
+    #postprocess_new_data(dataset_timestamp)
+    postporcess_with_results(dataset_timestamp)
 
 
 if __name__ == '__main__':
