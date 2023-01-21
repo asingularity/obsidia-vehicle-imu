@@ -1,4 +1,4 @@
-
+import os
 import time
 from datetime import datetime
 
@@ -10,12 +10,13 @@ import busio
 import digitalio
 
 from fps_counter import FPSCounter
+from parameters import DATASETS_FOLDER
 
 import keyboard
 
 
 DATASET_TIMESTAMP = datetime.now().isoformat()
-GROUND_TRUTH_FILE_NAME = '/home/csaba/projects/datasets/' + DATASET_TIMESTAMP + '_ground_truth.txt'
+GROUND_TRUTH_FILE_NAME = os.path.join(DATASETS_FOLDER, DATASET_TIMESTAMP + '_ground_truth.txt')
 F_GROUND_TRUTH = open(GROUND_TRUTH_FILE_NAME, 'w')
 F_GROUND_TRUTH.close()
 
@@ -127,7 +128,7 @@ def record_dataset():
 
     fps = FPSCounter(params={'display_every_k_seconds': 1})
 
-    f = open('/home/csaba/projects/datasets/' + DATASET_TIMESTAMP + '_accelerometer.txt', 'w')
+    f = open(os.path.join(DATASETS_FOLDER, DATASET_TIMESTAMP + '_accelerometer.txt'), 'w')
 
     print()
     print('starting recording...')

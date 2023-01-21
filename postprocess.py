@@ -1,4 +1,4 @@
-
+import os
 import time
 import datetime
 import numpy as np
@@ -8,6 +8,7 @@ matplotlib.rcParams['agg.path.chunksize'] = 10000
 import matplotlib.pyplot as plt
 
 from matlab_utils import save_array_to_mat, get_array_from_mat
+from parameters import DATASETS_FOLDER
 
 REF_TIMESTAMP = '2023-01-01T00:00:00.000000'
 
@@ -111,8 +112,8 @@ def postprocess_new_data(dataset_timestamp):
     num_subplots = 5
     fig_bar, ax = plt.subplots(nrows=num_subplots, ncols=1, sharex=True, figsize=(40, 20))
 
-    timestamp_arr_acc, acc_x_arr, acc_y_arr, acc_z_arr, acc_abs_arr = _load_acc_file(filename=dataset_timestamp + '_accelerometer.txt')
-    timestamp_arr_gt, events_arr = _load_ground_truth_file(filename=dataset_timestamp + '_ground_truth.txt')
+    timestamp_arr_acc, acc_x_arr, acc_y_arr, acc_z_arr, acc_abs_arr = _load_acc_file(filename=os.path.join(DATASETS_FOLDER, dataset_timestamp + '_accelerometer.txt'))
+    timestamp_arr_gt, events_arr = _load_ground_truth_file(filename=os.path.join(DATASETS_FOLDER, dataset_timestamp + '_ground_truth.txt'))
 
     if dataset_timestamp.startswith('2023-01-13T14:28:30.932444'):
         for k in range(len(timestamp_arr_acc)):
