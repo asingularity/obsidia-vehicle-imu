@@ -3,8 +3,12 @@ import time
 from datetime import datetime
 
 import board
+
+# https://github.com/adafruit/Adafruit_CircuitPython_LSM6DS/blob/main/adafruit_lsm6ds/__init__.py
+# https://github.com/adafruit/Adafruit_CircuitPython_LSM6DS/blob/main/adafruit_lsm6ds/ism330dhcx.py
 from adafruit_lsm6ds.ism330dhcx import ISM330DHCX
 #from adafruit_lsm6ds.lsm6dsox import LSM6DSOX
+
 from adafruit_lsm6ds import Rate, AccelRange, GyroRange
 import busio
 import digitalio
@@ -21,6 +25,8 @@ F_GROUND_TRUTH = open(GROUND_TRUTH_FILE_NAME, 'w')
 F_GROUND_TRUTH.close()
 
 LED_EVENT_START_TIME = time.time()
+
+START_BUTTON_PUSHED = False
 
 
 # catch keyboard events for ground truth:
@@ -81,6 +87,8 @@ def on_other_event():
 
 # define the callback function
 def on_keypress(e):
+    global START_BUTTON_PUSHED
+
     if e.name == '1':
         on_accelerate_event()
     if e.name == '2':
@@ -89,26 +97,75 @@ def on_keypress(e):
         on_break_event()
     if e.name == '4':
         on_other_event()
+    if e.name == 'space'
+        START_BUTTON_PUSHED = True
 
 
 keyboard.on_press(on_keypress, suppress=True)
 
-#
-# keyboard.add_hotkey('1', on_accelerate_event)
-# keyboard.add_hotkey('2', on_turn_event)
-# keyboard.add_hotkey('3', on_break_event)
-# keyboard.add_hotkey('4', on_other_event)
 
+def record_dataset(sensor, led_red, led_green, led_blue):
 
-def record_dataset():
+    fps = FPSCounter(params={'display_every_k_seconds': 1})
+
+    f_a = open(os.path.join(DATASETS_FOLDER, DATASET_TIMESTAMP + '_accelerometer.txt'), 'w')
+    f_g = open(os.path.join(DATASETS_FOLDER, DATASET_TIMESTAMP + '_gyro.txt'), 'w')
+
+    print()
+    print('starting recording...')
+    print()
+
+    last_led_time = time.time()
+    global LED_EVENT_START_TIME
+
+    global START_BUTTON_PUSHED
+
+    while not START_BUTTON_PUSHED:
+
+        #print("Acceleration: X:%.2f, Y: %.2f, Z: %.2f m/s^2" % (sensor.acceleration))
+        #print("Gyro X:%.2f, Y: %.2f, Z: %.2f radians/s" % (sensor.gyro))
+        #print("")
+
+        if time.time() - LED_EVENT_START_TIME < 2.0:
+            led_blue.value = True
+            led_red.value = False
+        elif time.time() - last_led_time > 0.25:
+            led_red.value = True
+            led_blue.value = not led_blue.value  # flash blue at 2 Hz
+            last_led_time = time.time()
+
+        timestamp = datetime.now().isoformat()
+        accel = sensor.acceleration
+        gyro = sensor.gyro
+
+        f_a.write(timestamp + ',' + str(accel[0]) + ',' + str(accel[1]) + ',' + str(accel[2]) + '\n')
+        f_g.write(timestamp + ',' + str(gyro[0]) + ',' + str(gyro[1]) + ',' + str(gyro[2]) + '\n')
+
+        fps.update()
+
+    # Not used for infinite recording:
+
+    print('finished recording.')
+    print()
+    #
+    fps.update(force_display=True)
+    f_a.close()
+    f_g.close()
+
+    START_BUTTON_PUSHED = False
+
+def dataset_recorder_loop():
+
+    global START_BUTTON_PUSHED
 
     i2c = busio.I2C(board.SCL, board.SDA)
     sensor = ISM330DHCX(i2c)
 
-    # old:
-    #         self.redPin = 15
-    #         self.greenPin = 11
-    #         self.bluePin = 13
+    sensor.accelerometer_range = AccelRange.RANGE_2G
+    sensor.accelerometer_data_rate = Rate.RATE_833_HZ
+
+    sensor.gyro_range = GyroRange.RANGE_125_DPS
+    sensor.gyro_data_rate = Rate.RATE_833_HZ
 
     led_red = digitalio.DigitalInOut(board.D22)  # D22: pin 15
     led_red.direction = digitalio.Direction.OUTPUT
@@ -123,54 +180,27 @@ def record_dataset():
     led_green.value = True  # off
     led_blue.value = True  # off
 
-    sensor.accelerometer_range = AccelRange.RANGE_2G
-    sensor.accelerometer_data_rate = Rate.RATE_833_HZ
-
-    fps = FPSCounter(params={'display_every_k_seconds': 1})
-
-    f = open(os.path.join(DATASETS_FOLDER, DATASET_TIMESTAMP + '_accelerometer.txt'), 'w')
-
-    print()
-    print('starting recording...')
-    print()
-
     last_led_time = time.time()
-    global LED_EVENT_START_TIME
 
-    #t0 = time.time()
-    while True:  #time.time() < t0 + 10:
-        #print("Acceleration: X:%.2f, Y: %.2f, Z: %.2f m/s^2" % (sensor.acceleration))
-        #print("Gyro X:%.2f, Y: %.2f, Z: %.2f radians/s" % (sensor.gyro))
-        #print("")
+    while True:
 
-        if time.time() - LED_EVENT_START_TIME < 2.0:
-            led_blue.value = True
-            led_red.value = False
-        elif time.time() - last_led_time > 0.5:
+        if time.time() - last_led_time > 1.0:
             led_red.value = True
             led_blue.value = not led_blue.value  # flash blue at 2 Hz
             last_led_time = time.time()
 
-        timestamp = datetime.now().isoformat()
-        accel = sensor.acceleration
-        # gyro = sensor.gyro
-        f.write(timestamp + ',' + str(accel[0]) + ',' + str(accel[1]) + ',' + str(accel[2]) + '\n')
+        # if detect push of "start dataset" button, start recording
+        if START_BUTTON_PUSHED:
 
-        fps.update()
+            START_BUTTON_PUSHED = False
 
-        #event = keyboard.read_event()
-        #if event is not None:
-        #    on_keypress(event)
+            # this function will listen for push of button again to end the recording:
+            record_dataset(sensor, led_red, led_green, led_blue)
 
-    # Not used for infinite recording:
-
-    # print('finished recording.')
-    # print()
-    #
-    # fps.update(force_display=True)
-    # f.close()
 
 
 if __name__ == '__main__':
+
+    dataset_recorder_loop()
+
     # use without a venv for now for adafruit stuff on raspberry pi
-    record_dataset()
