@@ -30,6 +30,9 @@ START_BUTTON_PUSHED = False
 
 GROUND_TRUTH_EVENT_NOW = False
 
+# filter out repeat events
+LAST_KEYPRESS_TIME = time.time()
+
 
 # catch keyboard events for ground truth:
 def on_accelerate_event():
@@ -119,20 +122,25 @@ def on_stop_event():
 
 # define the callback function
 def on_keypress(e):
+    global LAST_KEYPRESS_TIME
     global START_BUTTON_PUSHED
 
-    if e.name == '1':
-        on_accelerate_event()
-    if e.name == '2':
-        on_turn_event()
-    if e.name == '3':
-        on_break_event()
-    if e.name == '4':
-        on_other_event()
-    if e.name == 'esc':
-        on_stop_event()
-    if e.name == 'space':
-        START_BUTTON_PUSHED = True
+    # filter out repeat key presses less than half a second apart
+    if time.time() - LAST_KEYPRESS_TIME > 0.5:
+        LAST_KEYPRESS_TIME = time.time()
+        
+        if e.name == '1':
+            on_accelerate_event()
+        if e.name == '2':
+            on_turn_event()
+        if e.name == '3':
+            on_break_event()
+        if e.name == '4':
+            on_other_event()
+        if e.name == 'esc':
+            on_stop_event()
+        if e.name == 'space':
+            START_BUTTON_PUSHED = True
 
 
 keyboard.on_press(on_keypress, suppress=True)
