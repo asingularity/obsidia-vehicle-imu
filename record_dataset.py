@@ -43,7 +43,7 @@ def on_accelerate_event():
     if not GROUND_TRUTH_EVENT_NOW:
         timestamp = datetime.now().isoformat()
         f_g = open(GROUND_TRUTH_FILE_NAME, 'a')
-        f_g.write(timestamp + ' ' + 'accelerate' + '\n')
+        f_g.write(timestamp + ' ' + 'start accelerate' + '\n')
         f_g.close()
 
         global LED_EVENT_START_TIME
@@ -128,7 +128,7 @@ def on_keypress(e):
     # filter out repeat key presses less than half a second apart
     if time.time() - LAST_KEYPRESS_TIME > 0.5:
         LAST_KEYPRESS_TIME = time.time()
-        
+
         if e.name == '1':
             on_accelerate_event()
         if e.name == '2':

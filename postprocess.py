@@ -8,7 +8,7 @@ matplotlib.rcParams['agg.path.chunksize'] = 10000
 import matplotlib.pyplot as plt
 
 from matlab_utils import save_array_to_mat, get_array_from_mat
-from parameters import DATASETS_FOLDER
+from parameters import DATASETS_FOLDER, RESULTS_FOLDER
 
 REF_TIMESTAMP = '2023-01-01T00:00:00.000000'
 
@@ -90,16 +90,23 @@ def _load_ground_truth_file(filename):
     events_arr = []
 
     for line in f:
+
         things = line.strip().split(' ')
         timestamp_arr.append(_timestamp_str_to_float(things[0]))
-        if things[1].startswith('accel'):
+
+        if things[1].startswith('start'):
+            things[1] = things[1] + ' ' + things[2]
+
+        if things[1].startswith('start accel'):
             events_arr.append(1)
-        elif things[1].startswith('turn'):
+        elif things[1].startswith('start turn'):
             events_arr.append(2)
-        elif things[1].startswith('break'):
+        elif things[1].startswith('start break'):
             events_arr.append(3)
-        elif things[1].startswith('other'):
+        elif things[1].startswith('start other'):
             events_arr.append(4)
+        elif things[1].startswith('end'):
+            events_arr.append(0)
 
     timestamp_arr = np.array(timestamp_arr)
     events_arr = np.array(events_arr)
@@ -107,7 +114,16 @@ def _load_ground_truth_file(filename):
     return timestamp_arr, events_arr
 
 
-def postprocess_new_data(dataset_timestamp):
+def postprocess_new_data_OLD_WAY(dataset_timestamp):
+    '''
+
+    This is only valid for initial datasets:
+        2023-01-13T11:57:10.525044
+        2023-01-14T17:03:46.266499
+
+    :param dataset_timestamp:
+    :return:
+    '''
 
     num_subplots = 5
     fig_bar, ax = plt.subplots(nrows=num_subplots, ncols=1, sharex=True, figsize=(40, 20))
@@ -171,7 +187,108 @@ def postprocess_new_data(dataset_timestamp):
     fig_bar.savefig("all_data.png", dpi=100)
 
 
-def postporcess_with_results(dataset_timestamp):
+def postprocess_new_data(session_timestamp, dataset_index_str):
+    '''
+
+    This is only valid for initial datasets:
+        2023-01-13T11:57:10.525044
+        2023-01-14T17:03:46.266499
+
+    :param dataset_timestamp:
+    :return:
+    '''
+
+    num_subplots = 4
+    fig_bar, ax = plt.subplots(nrows=num_subplots, ncols=1, sharex=True, figsize=(40, 20))
+
+    timestamp_arr_acc, acc_x_arr, acc_y_arr, acc_z_arr, acc_abs_arr = _load_acc_file(filename=os.path.join(DATASETS_FOLDER, session_timestamp + '_' + dataset_index_str + '_accelerometer.txt'))
+    timestamp_arr_gyro, gyro_x_arr, gyro_y_arr, gyro_z_arr, gyro_abs_arr = _load_acc_file(filename=os.path.join(DATASETS_FOLDER, session_timestamp + '_' + dataset_index_str + '_gyro.txt'))
+
+    # TODO NEED TO LOAD STOPPING OF EVENT TIMES TOO!!!
+    timestamp_arr_gt, events_arr = _load_ground_truth_file(filename=os.path.join(DATASETS_FOLDER, session_timestamp + '_ground_truth.txt'))
+
+    # if dataset_timestamp.startswith('2023-01-13T14:28:30.932444'):
+    #     for k in range(len(timestamp_arr_acc)):
+    #         # 19233 1088937.5876090527
+    #         # 19234 1179017.7017669678
+    #         if timestamp_arr_acc[k] < 1179017:
+    #             timestamp_arr_acc[k] = timestamp_arr_acc[k] + (1179017.7017669678 - 1088937.5876090527)
+    #         #print(k, timestamp_arr_acc[k])
+
+    save_array_to_mat(os.path.join(RESULTS_FOLDER, session_timestamp + '_' + dataset_index_str + '_accelerometer.mat'), np.hstack((timestamp_arr_acc[:, np.newaxis], acc_x_arr[:, np.newaxis], acc_y_arr[:, np.newaxis], acc_z_arr[:, np.newaxis])), 'accelerometer')
+    save_array_to_mat(os.path.join(RESULTS_FOLDER, session_timestamp + '_' + dataset_index_str + '_gyroscope.mat'), np.hstack((timestamp_arr_gyro[:, np.newaxis], gyro_x_arr[:, np.newaxis], gyro_y_arr[:, np.newaxis], gyro_z_arr[:, np.newaxis])), 'gyroscope')
+    save_array_to_mat(os.path.join(RESULTS_FOLDER, session_timestamp + '_' + dataset_index_str + '_ground_truth_events.mat'), np.hstack((timestamp_arr_gt[:, np.newaxis], events_arr[:, np.newaxis])), 'ground_truth_events')
+
+    ax[0].cla()
+    ax[0].plot(timestamp_arr_acc, acc_x_arr, 'r.')
+    ax[0].get_xaxis().get_major_formatter().set_scientific(False)
+    ax[0].get_yaxis().get_major_formatter().set_scientific(False)
+    ax[0].set_title('accelerometer X')
+
+    ax[1].cla()
+    ax[1].plot(timestamp_arr_acc, acc_y_arr, 'g.')
+    ax[1].get_xaxis().get_major_formatter().set_scientific(False)
+    ax[1].get_yaxis().get_major_formatter().set_scientific(False)
+    ax[1].set_title('accelerometer Y')
+
+    ax[2].cla()
+    ax[2].plot(timestamp_arr_acc, acc_z_arr, 'b.')
+    ax[2].get_xaxis().get_major_formatter().set_scientific(False)
+    ax[2].get_yaxis().get_major_formatter().set_scientific(False)
+    ax[2].set_title('accelerometer Z')
+
+    ax[3].cla()
+    ax[3].plot(timestamp_arr_gt, events_arr, 'ko')
+    ax[3].get_xaxis().get_major_formatter().set_scientific(False)
+    ax[3].get_yaxis().get_major_formatter().set_scientific(False)
+    ax[3].set_title('ground truth events start: 1:accelerate, 2:turn, 3:break, 4:bump; 0: event end')
+
+    for k in range(len(events_arr)):
+        event_t = timestamp_arr_gt[k]
+        ax[0].axvline(x=event_t, color='g')
+        ax[1].axvline(x=event_t, color='g')
+        ax[2].axvline(x=event_t, color='g')
+
+    fig_bar.savefig(os.path.join(RESULTS_FOLDER, session_timestamp + '_' + dataset_index_str + "_accelerometer_data.png"), dpi=100)
+
+    # gyroscope
+
+    ax[0].cla()
+    ax[0].plot(timestamp_arr_gyro, gyro_x_arr, 'r.')
+    ax[0].get_xaxis().get_major_formatter().set_scientific(False)
+    ax[0].get_yaxis().get_major_formatter().set_scientific(False)
+    ax[0].set_title('gyro X')
+
+    ax[1].cla()
+    ax[1].plot(timestamp_arr_gyro, gyro_y_arr, 'g.')
+    ax[1].get_xaxis().get_major_formatter().set_scientific(False)
+    ax[1].get_yaxis().get_major_formatter().set_scientific(False)
+    ax[1].set_title('gyro Y')
+
+    ax[2].cla()
+    ax[2].plot(timestamp_arr_gyro, gyro_z_arr, 'b.')
+    ax[2].get_xaxis().get_major_formatter().set_scientific(False)
+    ax[2].get_yaxis().get_major_formatter().set_scientific(False)
+    ax[2].set_title('gyro Z')
+
+    ax[3].cla()
+    ax[3].plot(timestamp_arr_gt, events_arr, 'ko')
+    ax[3].get_xaxis().get_major_formatter().set_scientific(False)
+    ax[3].get_yaxis().get_major_formatter().set_scientific(False)
+    ax[3].set_title('ground truth events start: 1:accelerate, 2:turn, 3:break, 4:bump; 0: event end')
+
+    for k in range(len(events_arr)):
+        event_t = timestamp_arr_gt[k]
+        ax[0].axvline(x=event_t, color='g')
+        ax[1].axvline(x=event_t, color='g')
+        ax[2].axvline(x=event_t, color='g')
+
+    fig_bar.savefig(os.path.join(RESULTS_FOLDER, session_timestamp + '_' + dataset_index_str + "_gyroscope_data.png"), dpi=100)
+
+
+def postprocess_with_results(dataset_timestamp):
+
+    assert False, 'TODO NEEDS REWRITTEN FOR NEW DATASETS SESSION TIMESTAMP STYLE'
 
     timestamp_arr_acc, acc_x_arr, acc_y_arr, acc_z_arr, acc_abs_arr = _load_acc_file(filename=dataset_timestamp + '_accelerometer.txt')
     timestamp_arr_gt, events_arr = _load_ground_truth_file(filename=dataset_timestamp + '_ground_truth.txt')
@@ -243,12 +360,27 @@ def postporcess_with_results(dataset_timestamp):
 
 
 def main():
-    dataset_timestamp = '2023-01-13T11:57:10.525044'  # first car dataset
-    # dataset_timestamp = '2023-01-13T14:28:30.932444'  # living room, test dataset; confusing
-    # dataset_timestamp = '2023-01-14T17:03:46.266499'  # seated, should be more clear. X, Y, Z separate mostly
 
-    #postprocess_new_data(dataset_timestamp)
-    postporcess_with_results(dataset_timestamp)
+    # old way for only these datasets:
+
+    # dataset_timestamp = '2023-01-13T11:57:10.525044'  # first car dataset
+    # dataset_timestamp = '2023-01-14T17:03:46.266499'  # seated, should be more clear. X, Y, Z separate mostly
+    # postprocess_new_data_OLD_WAY(dataset_timestamp)
+    # postprocess_with_results(dataset_timestamp)
+
+    # new way for all new datasets:
+
+    # session_timestamp = '2023-01-21T13:06:39.069536'  # to mira mesa
+    # session_timestamp = '2023-01-21T14:17:09.160292'  # from mira mesa
+    session_timestamp = '2023-01-22T14:17:09.241501'  # first attempt at training with bounded events
+
+    dataset_index_str = '0'
+
+    postprocess_new_data(session_timestamp=session_timestamp,
+                         dataset_index_str=dataset_index_str)
+
+
+    # with results:
 
 
 if __name__ == '__main__':
