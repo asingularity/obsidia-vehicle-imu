@@ -171,11 +171,13 @@ def record_dataset(sensor, led_red, led_green, led_blue, dataset_id):
         if GROUND_TRUTH_EVENT_NOW:
             if time.time() - last_led_time > 0.25:
                 led_red.value = not led_red.value  # flash red at 2 Hz
+                led_green.value = True
                 led_blue.value = True
                 last_led_time = time.time()
         else:
             if time.time() - last_led_time > 0.25:
                 led_red.value = True
+                led_green.value = True
                 led_blue.value = not led_blue.value  # flash blue at 2 Hz
                 last_led_time = time.time()
 
@@ -203,6 +205,7 @@ def record_dataset(sensor, led_red, led_green, led_blue, dataset_id):
 def dataset_recorder_loop():
 
     global START_BUTTON_PUSHED
+    global LAST_KEYPRESS_TIME
 
     i2c = busio.I2C(board.SCL, board.SDA)
     sensor = ISM330DHCX(i2c)
@@ -230,11 +233,18 @@ def dataset_recorder_loop():
     dataset_id = 0
 
     while True:
-
-        if time.time() - last_led_time > 1.0:
+        # if any key pressed and not recording: green for two seconds to verify keyboard works
+        if time.time() - LAST_KEYPRESS_TIME < 2.0:
             led_red.value = True
-            led_blue.value = not led_blue.value  # flash blue at 2 Hz
+            led_green.value = False
+            led_blue.value = True
             last_led_time = time.time()
+        else:
+            if time.time() - last_led_time > 1.0:
+                led_red.value = True
+                led_green.value = True
+                led_blue.value = not led_blue.value  # flash blue at 2 Hz
+                last_led_time = time.time()
 
         # if detect push of "start dataset" button, start recording
         if START_BUTTON_PUSHED:
