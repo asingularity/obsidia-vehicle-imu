@@ -372,7 +372,8 @@ def main():
 
     # session_timestamp = '2023-01-21T13:06:39.069536'  # to mira mesa
     # session_timestamp = '2023-01-21T14:17:09.160292'  # from mira mesa
-    session_timestamp = '2023-01-22T14:17:09.241501'  # first attempt at training with bounded events
+    # session_timestamp = '2023-01-22T14:17:09.241501'  # first attempt at training with bounded events
+    session_timestamp = '2023-01-23T11:11:45.184903'  # second training attempt
 
     dataset_index_str = '0'
 
