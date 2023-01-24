@@ -74,9 +74,11 @@ def realtime_loop(sensor, led_red, led_green, led_blue):
         # check on memory usage
 
         if time.time() - t0 > 5:
+            print()
             print('*********************************************')
             print('mem', psutil.virtual_memory().percent)
             print('swap', psutil.swap_memory().percent)
+            print('*********************************************')
             print()
 
             t0 = time.time()
@@ -121,9 +123,17 @@ def listener_loop():
 
     # flash green on boot, while waiting to start
 
+    print()
+    print('Starting listener loop. Press <space> to start/stop real-time code. Press any other key for keyboard test.')
+    print()
+
     while True:
         # if any key pressed and not recording: blue for one second to verify keyboard works
         if time.time() - LAST_KEYPRESS_TIME < 1.0 and not START_BUTTON_PUSHED:
+            print()
+            print('Key pressed!')
+            print()
+            
             led_red.value = True
             led_green.value = True
             led_blue.value = False
