@@ -76,8 +76,8 @@ def realtime_loop(sensor, led_red, led_green, led_blue):
         if time.time() - t0 > 5:
             print()
             print('*********************************************')
-            print('mem', psutil.virtual_memory().percent)
-            print('swap', psutil.swap_memory().percent)
+            print(psutil.virtual_memory().percent)
+            print(psutil.swap_memory().percent)
             print('*********************************************')
             print()
 
