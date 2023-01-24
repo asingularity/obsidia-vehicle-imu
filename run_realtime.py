@@ -129,19 +129,20 @@ def listener_loop():
 
     while True:
         # if any key pressed and not recording: blue for one second to verify keyboard works
-        if time.time() - LAST_KEYPRESS_TIME < 1.0 and not START_BUTTON_PUSHED:
-            print()
-            print('Key pressed!')
-            print()
-            
+        if time.time() - LAST_KEYPRESS_TIME < 0.5 and not START_BUTTON_PUSHED:
+            # print()
+            # print('Key pressed!')
+            # print()
+            #
+
             led_red.value = True
             led_green.value = True
             led_blue.value = False
             last_led_time = time.time()
         else:
             if time.time() - last_led_time > 1.0:
-                led_red.value = True
-                led_green.value = not led_green.value  # flash green at 2 Hz
+                led_red.value = not led_red.value
+                led_green.value = True  # flash green at 2 Hz
                 led_blue.value = True
                 last_led_time = time.time()
 
