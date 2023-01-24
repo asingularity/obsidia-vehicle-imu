@@ -233,8 +233,8 @@ def dataset_recorder_loop():
     dataset_id = 0
 
     while True:
-        # if any key pressed and not recording: green for two seconds to verify keyboard works
-        if time.time() - LAST_KEYPRESS_TIME < 2.0:
+        # if any key pressed and not recording: green for one second to verify keyboard works
+        if time.time() - LAST_KEYPRESS_TIME < 1.0 and not START_BUTTON_PUSHED:
             led_red.value = True
             led_green.value = False
             led_blue.value = True

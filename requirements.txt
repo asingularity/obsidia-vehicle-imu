@@ -3,3 +3,4 @@ keyboard
 numpy
 matplotlib
 scipy
+psutil
