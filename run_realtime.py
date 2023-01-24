@@ -48,10 +48,30 @@ def realtime_loop(sensor, led_red, led_green, led_blue):
     actually runs the algorithm
     '''
 
-    while True:
+    t0 = 0
+    last_led_time = 0
+
+    fps = FPSCounter(params={'display_every_k_seconds': 2})
+
+    global START_BUTTON_PUSHED
+
+    while not START_BUTTON_PUSHED:
+        # flash red when running real-time code
+        if time.time() - last_led_time > 0.25:
+            led_red.value = not led_red.value   # flash red at 2 Hz
+            led_green.value = True
+            led_blue.value = True
+
+            last_led_time = time.time()
+
         # get data
+        timestamp = datetime.now().isoformat()
+        accel = sensor.acceleration
+        gyro = sensor.gyro
 
         # process data
+
+        # check on memory usage
 
         if time.time() - t0 > 5:
             print('*********************************************')
@@ -60,6 +80,14 @@ def realtime_loop(sensor, led_red, led_green, led_blue):
             print()
 
             t0 = time.time()
+
+        fps.update()
+
+    print()
+    print('<<< Finished real-time code! >>>')
+    print()
+
+    START_BUTTON_PUSHED = False
 
 
 def listener_loop():
@@ -91,28 +119,33 @@ def listener_loop():
 
     last_led_time = time.time()
 
+    # flash green on boot, while waiting to start
+
     while True:
-        # if any key pressed and not recording: green for one second to verify keyboard works
+        # if any key pressed and not recording: blue for one second to verify keyboard works
         if time.time() - LAST_KEYPRESS_TIME < 1.0 and not START_BUTTON_PUSHED:
             led_red.value = True
-            led_green.value = False
-            led_blue.value = True
+            led_green.value = True
+            led_blue.value = False
             last_led_time = time.time()
         else:
             if time.time() - last_led_time > 1.0:
                 led_red.value = True
-                led_green.value = True
-                led_blue.value = not led_blue.value  # flash blue at 2 Hz
+                led_green.value = not led_green.value  # flash green at 2 Hz
+                led_blue.value = True
                 last_led_time = time.time()
 
         # if detect push of "start dataset" button, start recording
         if START_BUTTON_PUSHED:
             START_BUTTON_PUSHED = False
 
+            print()
+            print('>>> Starting real-time code! <<<')
+            print()
+
             # this function will listen for push of button again to end the run:
             realtime_loop(sensor, led_red, led_green, led_blue)
 
 
-
 if __name__ == '__main__':
-    main()
+    listener_loop()
