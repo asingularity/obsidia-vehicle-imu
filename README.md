@@ -32,4 +32,9 @@ Commit and push code.
 
 On raspberry pi, update code via git. 
 
+To run demo with app:
+
+Need to run run_webserver.py and realtime (sudo python3 run_realtime.py) separately, and then access 192.168.4.1:8000 on phone. also connect rpi via usb hub to ethernet and keyboard dongle.
+
+
 Run `run_realtime.py`
