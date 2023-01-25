@@ -24,3 +24,10 @@ Example:
 
 ## running real-time demo
 
+On desktop, run `pre_run_realtime.py` to generate system matrices.
+
+Commit and push code.
+
+On raspberry pi, update code via git. 
+
+Run `run_realtime.py`
