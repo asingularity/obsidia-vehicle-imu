@@ -1,6 +1,8 @@
 # obsidia-vehicle-imu
 vehicle imu recording and real-time processing
 
+to enable either recording or realtime on boot, edit /etc/rc.local on the rpi and uncomment the line
+
 ## recording datasets
 
 Turn on device in wifi proximity. Device should blink blue at 1 Hz.
