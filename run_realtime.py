@@ -67,8 +67,8 @@ def realtime_loop(sensor, led_red, led_green, led_blue):
             last_led_time = time.time()
 
             # for testing, put a new value to the webserver
-            url = "http://localhost:8000/update"
-            requests.put(url + '/' + str(tmp_value), verify=False, timeout=0.1)
+            url = "http://192.168.4.1:8000/update"
+            requests.put(url + '/' + str(tmp_value), verify=False, timeout=1.0)
             tmp_value += 1
 
         # get data
