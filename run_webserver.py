@@ -17,4 +17,4 @@ def update(new_value):
     return f"Value updated to {new_value}"
 
 
-run(host='localhost', port=8000)
+run(host='192.168.4.1', port=8000)
