@@ -1,0 +1,20 @@
+
+import bottle
+from bottle import route, run, template
+
+value = 0
+
+
+@route('/')
+def index():
+    return template('<h1>Value: {{value}}</h1><script>setInterval(function(){fetch("/value").then(res => res.text()).then(data => document.querySelector("h1").innerHTML = "Value: " + data)}, 50)</script>', value=value)
+
+
+@route('/update/<new_value:int>')
+def update(new_value):
+    global value
+    value = new_value
+    return f"Value updated to {new_value}"
+
+
+run(host='localhost', port=8000)
