@@ -1,7 +1,7 @@
 import os
 import time
 from datetime import datetime
-
+import requests
 import board
 
 # https://github.com/adafruit/Adafruit_CircuitPython_LSM6DS/blob/main/adafruit_lsm6ds/__init__.py
@@ -55,6 +55,8 @@ def realtime_loop(sensor, led_red, led_green, led_blue):
 
     global START_BUTTON_PUSHED
 
+    tmp_value = 0
+
     while not START_BUTTON_PUSHED:
         # flash red when running real-time code
         if time.time() - last_led_time > 0.25:
@@ -63,6 +65,11 @@ def realtime_loop(sensor, led_red, led_green, led_blue):
             led_blue.value = True
 
             last_led_time = time.time()
+
+            # for testing, put a new value to the webserver
+            url = "http://localhost:8000/update"
+            requests.put(url + '/' + str(tmp_value), verify=False, timeout=0.1)
+            tmp_value += 1
 
         # get data
         timestamp = datetime.now().isoformat()
