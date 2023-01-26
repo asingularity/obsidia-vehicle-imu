@@ -1,4 +1,4 @@
-
+import time
 import bottle
 from bottle import route, run, template, put
 
@@ -23,4 +23,6 @@ def update(new_value):
     return f"Value updated to {new_value}"
 
 
+# wait 10 seconds for wifi stuff to start working
+time.sleep(10)
 run(host='192.168.4.1', port=8000)
