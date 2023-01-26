@@ -55,9 +55,13 @@ def realtime_loop(sensor, led_red, led_green, led_blue):
 
     global START_BUTTON_PUSHED
 
-    tmp_value = 0
-
     while not START_BUTTON_PUSHED:
+
+        # get data
+        timestamp = datetime.now().isoformat()
+        accel = sensor.acceleration
+        gyro = sensor.gyro
+
         # flash red when running real-time code
         if time.time() - last_led_time > 0.25:
             led_red.value = not led_red.value   # flash red at 2 Hz
@@ -68,13 +72,7 @@ def realtime_loop(sensor, led_red, led_green, led_blue):
 
             # for testing, put a new value to the webserver
             url = "http://192.168.4.1:8000/update"
-            requests.put(url + '/' + str(tmp_value), verify=False, timeout=1.0)
-            tmp_value += 1
-
-        # get data
-        timestamp = datetime.now().isoformat()
-        accel = sensor.acceleration
-        gyro = sensor.gyro
+            requests.put(url + '/' + str(('<br><br>' + datetime.now().isoformat(), '<br>accel', accel, '<br>gyro', gyro)), verify=False, timeout=1.0)
 
         # process data
 
