@@ -16,7 +16,7 @@ def get_value():
     global value
     return str(value)
 
-@put('/update/<new_value:int>')
+@put('/update/<new_value>')
 def update(new_value):
     global value
     value = new_value
