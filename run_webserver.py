@@ -8,7 +8,7 @@ value = 0
 @route('/')
 def index():
     #return "HELLO FROM RPI"
-    return template('<h1>Value: {{value}}</h1><script>setInterval(function(){fetch("/value").then(res => res.text()).then(data => document.querySelector("h1").innerHTML = "Value: " + data)}, 50)</script>', value=value)
+    return template('<h1>Value: {{value}}</h1><script>setInterval(function(){fetch("/value").then(res => res.text()).then(data => document.querySelector("h1").innerHTML = data)}, 50)</script>', value=value)
 
 
 @route("/value")

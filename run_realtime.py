@@ -73,7 +73,7 @@ def realtime_loop(sensor, led_red, led_green, led_blue):
             # for testing, put a new value to the webserver
             url = "http://192.168.4.1:8000/update"
             try:
-                requests.put(url + '/' + str(('<br><br>' + datetime.now().isoformat(), '<br>accel', accel, '<br>gyro', gyro)), verify=False, timeout=1.0)
+                requests.put(url + '/' + '<br><br>' + datetime.now().isoformat() + '<br>accel<br>' + str(accel) + '<br>gyro<br>' + str(gyro), verify=False, timeout=1.0)
             except:
                 print('cannot put..')
                 pass
