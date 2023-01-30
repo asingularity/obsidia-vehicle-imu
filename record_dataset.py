@@ -24,11 +24,13 @@ GROUND_TRUTH_FILE_NAME = os.path.join(DATASETS_FOLDER, SESSION_TIMESTAMP + '_gro
 F_GROUND_TRUTH = open(GROUND_TRUTH_FILE_NAME, 'w')
 F_GROUND_TRUTH.close()
 
-LED_EVENT_START_TIME = time.time()
+CURR_EVENT_START_TIME = time.time()
 
 START_BUTTON_PUSHED = False
 
 GROUND_TRUTH_EVENT_NOW = False
+
+EVENT_LENGTH_SEC = 6
 
 # filter out repeat events
 LAST_KEYPRESS_TIME = time.time()
@@ -46,31 +48,31 @@ def on_accelerate_event():
         f_g.write(timestamp + ' ' + 'start accelerate' + '\n')
         f_g.close()
 
-        global LED_EVENT_START_TIME
-        LED_EVENT_START_TIME = time.time()
+        global CURR_EVENT_START_TIME
+        CURR_EVENT_START_TIME = time.time()
 
         GROUND_TRUTH_EVENT_NOW = True
 
 
-def on_turn_event():
+def on_break_event():
     # print()
-    # print('ground truth: turn event!')
+    # print('ground truth: turn left event!')
     # print()
     global GROUND_TRUTH_EVENT_NOW
     if not GROUND_TRUTH_EVENT_NOW:
 
         timestamp = datetime.now().isoformat()
         f_g = open(GROUND_TRUTH_FILE_NAME, 'a')
-        f_g.write(timestamp + ' ' + 'start turn' + '\n')
+        f_g.write(timestamp + ' ' + 'start break' + '\n')
         f_g.close()
 
-        global LED_EVENT_START_TIME
-        LED_EVENT_START_TIME = time.time()
+        global CURR_EVENT_START_TIME
+        CURR_EVENT_START_TIME = time.time()
 
         GROUND_TRUTH_EVENT_NOW = True
 
 
-def on_break_event():
+def on_turn_left_event():
     # print()
     # print('ground truth: break event!')
     # print()
@@ -80,16 +82,16 @@ def on_break_event():
 
         timestamp = datetime.now().isoformat()
         f_g = open(GROUND_TRUTH_FILE_NAME, 'a')
-        f_g.write(timestamp + ' ' + 'start break' + '\n')
+        f_g.write(timestamp + ' ' + 'start turn_left' + '\n')
         f_g.close()
 
-        global LED_EVENT_START_TIME
-        LED_EVENT_START_TIME = time.time()
+        global CURR_EVENT_START_TIME
+        CURR_EVENT_START_TIME = time.time()
 
         GROUND_TRUTH_EVENT_NOW = True
 
 
-def on_other_event():
+def on_turn_right_event():
     # print()
     # print('ground truth: other event!')
     # print()
@@ -99,11 +101,11 @@ def on_other_event():
 
         timestamp = datetime.now().isoformat()
         f_g = open(GROUND_TRUTH_FILE_NAME, 'a')
-        f_g.write(timestamp + ' ' + 'start other' + '\n')
+        f_g.write(timestamp + ' ' + 'start turn_right' + '\n')
         f_g.close()
 
-        global LED_EVENT_START_TIME
-        LED_EVENT_START_TIME = time.time()
+        global CURR_EVENT_START_TIME
+        CURR_EVENT_START_TIME = time.time()
 
         GROUND_TRUTH_EVENT_NOW = True
 
@@ -132,13 +134,14 @@ def on_keypress(e):
         if e.name == '1':
             on_accelerate_event()
         if e.name == '2':
-            on_turn_event()
-        if e.name == '3':
             on_break_event()
+        if e.name == '3':
+            on_turn_left_event()
         if e.name == '4':
-            on_other_event()
-        if e.name == 'esc':
-            on_stop_event()
+            on_turn_right_event()
+        # instead of this, will now have hard-coded event length (6 seconds)
+        # if e.name == 'esc':
+        #    on_stop_event()
         if e.name == 'space':
             START_BUTTON_PUSHED = True
 
@@ -158,7 +161,7 @@ def record_dataset(sensor, led_red, led_green, led_blue, dataset_id):
     print()
 
     last_led_time = time.time()
-    global LED_EVENT_START_TIME
+    global CURR_EVENT_START_TIME
 
     global START_BUTTON_PUSHED
 
@@ -170,15 +173,17 @@ def record_dataset(sensor, led_red, led_green, led_blue, dataset_id):
 
         if GROUND_TRUTH_EVENT_NOW:
             if time.time() - last_led_time > 0.25:
-                led_red.value = not led_red.value  # flash red at 2 Hz
+                led_red.value = not led_red.value  # flash red fast
                 led_green.value = True
                 led_blue.value = True
                 last_led_time = time.time()
+            if time.time() - CURR_EVENT_START_TIME > EVENT_LENGTH_SEC:
+                on_stop_event()
         else:
             if time.time() - last_led_time > 0.25:
                 led_red.value = True
                 led_green.value = True
-                led_blue.value = not led_blue.value  # flash blue at 2 Hz
+                led_blue.value = not led_blue.value  # flash blue fast
                 last_led_time = time.time()
 
         timestamp = datetime.now().isoformat()
@@ -243,7 +248,7 @@ def dataset_recorder_loop():
             if time.time() - last_led_time > 1.0:
                 led_red.value = True
                 led_green.value = True
-                led_blue.value = not led_blue.value  # flash blue at 2 Hz
+                led_blue.value = not led_blue.value  # flash blue slow
                 last_led_time = time.time()
 
         # if detect push of "start dataset" button, start recording
