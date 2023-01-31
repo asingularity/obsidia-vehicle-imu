@@ -82,7 +82,16 @@ def _load_acc_file(filename):
     return timestamp_arr, acc_x_arr, acc_y_arr, acc_z_arr, acc_abs_arr
 
 
-def _load_ground_truth_file(filename):
+def _load_ground_truth_file(filename, event_types=None):
+
+    if event_types is None:
+        event_types = {  # define as most recent datasets
+            'start accel': 1,
+            'start break': 2,
+            'start turn_left': 3,
+            'start turn_right': 4,
+            'end': 0
+        }
 
     f = open(filename, 'r')
 
@@ -97,16 +106,29 @@ def _load_ground_truth_file(filename):
         if things[1].startswith('start'):
             things[1] = things[1] + ' ' + things[2]
 
-        if things[1].startswith('start accel'):
-            events_arr.append(1)
-        elif things[1].startswith('start break'):
-            events_arr.append(2)
-        elif things[1].startswith('start turn_left'):
-            events_arr.append(3)
-        elif things[1].startswith('start turn_right'):
-            events_arr.append(4)
-        elif things[1].startswith('end'):
-            events_arr.append(0)
+        found_event = False
+        duplicate_event = False
+        for event_type in event_types.keys():
+            if things[1].startswith(event_type):
+                events_arr.append(event_types[event_type])
+                if found_event:
+                    duplicate_event = True
+                found_event = True
+                break
+
+        assert found_event, 'event not found! ' + line + ' ' + str(event_types)
+        assert not duplicate_event, 'duplicate event found! ' + line + ' ' + str(event_types)
+
+        # if things[1].startswith('start accel'):
+        #     events_arr.append(1)
+        # elif things[1].startswith('start break'):
+        #     events_arr.append(2)
+        # elif things[1].startswith('start turn_left'):
+        #     events_arr.append(3)
+        # elif things[1].startswith('start turn_right'):
+        #     events_arr.append(4)
+        # elif things[1].startswith('end'):
+        #     events_arr.append(0)
 
     timestamp_arr = np.array(timestamp_arr)
     events_arr = np.array(events_arr)
