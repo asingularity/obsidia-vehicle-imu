@@ -99,11 +99,11 @@ def _load_ground_truth_file(filename):
 
         if things[1].startswith('start accel'):
             events_arr.append(1)
-        elif things[1].startswith('start turn'):
-            events_arr.append(2)
         elif things[1].startswith('start break'):
+            events_arr.append(2)
+        elif things[1].startswith('start turn_left'):
             events_arr.append(3)
-        elif things[1].startswith('start other'):
+        elif things[1].startswith('start turn_right'):
             events_arr.append(4)
         elif things[1].startswith('end'):
             events_arr.append(0)
@@ -175,7 +175,7 @@ def postprocess_new_data_OLD_WAY(dataset_timestamp):
     ax[4].plot(timestamp_arr_gt, events_arr, 'ko')
     ax[4].get_xaxis().get_major_formatter().set_scientific(False)
     ax[4].get_yaxis().get_major_formatter().set_scientific(False)
-    ax[4].set_title('ground truth events: 1:accelerate, 2:turn, 3:break, 4:bump')
+    ax[4].set_title('ground truth events: 1:accelerate, 2:brake, 3:swerve_left, 4:swerve_right')
 
     for k in range(len(events_arr)):
         event_t = timestamp_arr_gt[k]
@@ -241,7 +241,7 @@ def postprocess_new_data(session_timestamp, dataset_index_str):
     ax[3].plot(timestamp_arr_gt, events_arr, 'ko')
     ax[3].get_xaxis().get_major_formatter().set_scientific(False)
     ax[3].get_yaxis().get_major_formatter().set_scientific(False)
-    ax[3].set_title('ground truth events start: 1:accelerate, 2:turn, 3:break, 4:bump; 0: event end')
+    ax[3].set_title('ground truth events start: 1:accelerate, 2:brake, 3:swerve_left, 4:swerve_right; 0: event end')
 
     for k in range(len(events_arr)):
         event_t = timestamp_arr_gt[k]
@@ -275,7 +275,7 @@ def postprocess_new_data(session_timestamp, dataset_index_str):
     ax[3].plot(timestamp_arr_gt, events_arr, 'ko')
     ax[3].get_xaxis().get_major_formatter().set_scientific(False)
     ax[3].get_yaxis().get_major_formatter().set_scientific(False)
-    ax[3].set_title('ground truth events start: 1:accelerate, 2:turn, 3:break, 4:bump; 0: event end')
+    ax[3].set_title('ground truth events start: 1:accelerate, 2:brake, 3:swerve_left, 4:swerve_right; 0: event end')
 
     for k in range(len(events_arr)):
         event_t = timestamp_arr_gt[k]
@@ -374,11 +374,18 @@ def main():
     # session_timestamp = '2023-01-21T14:17:09.160292'  # from mira mesa
     # session_timestamp = '2023-01-22T14:17:09.241501'  # first attempt at training with bounded events
     # session_timestamp = '2023-01-23T11:11:45.184903'  # second training attempt
-    session_timestamp = '2023-01-23T12:06:39.227689'  # driving around OB
-    dataset_index_str = '0'
+    # session_timestamp = '2023-01-23T12:06:39.227689'  # driving around OB
 
-    postprocess_new_data(session_timestamp=session_timestamp,
-                         dataset_index_str=dataset_index_str)
+    session_timestamps = ['2023-01-30T11:30:00.426262', '2023-01-30T11:30:00.703324', '2023-01-30T11:30:00.475365']
+
+    for session_timestamp in session_timestamps:
+        print()
+        print('POSTPROCESS: ', session_timestamp)
+        print()
+        dataset_index_str = '0'
+
+        postprocess_new_data(session_timestamp=session_timestamp,
+                             dataset_index_str=dataset_index_str)
 
 
     # with results:
