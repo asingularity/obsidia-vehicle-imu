@@ -346,12 +346,12 @@ def main():
     pass
 
     experiment_timestamp = datetime.now().isoformat()
-    print()
-    experiment_name = input('experiment_name >> ')
-    print()
+    #print()
+    #experiment_name = input('experiment_name >> ')
+    #print()
     # make an experiment folder in RESULTS_FOLDER
 
-    exp_name = 'thresh_method_' + experiment_timestamp + '_' + experiment_name
+    exp_name = 'thresh_method_' + experiment_timestamp + '_acc_' + str(ACC_THRESH) + '_brake_' + str(BRAKE_THRESH) + '_corner_' + str(CORNER_THRESH)
     print()
     print('exp_name:', exp_name)
     print()
