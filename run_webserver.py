@@ -86,6 +86,24 @@ page_test = '''
   });
 
   message.innerHTML = "Hello World!";
+  
+  function updateValues() {
+    // Call the route to retrieve the dictionary of values
+    fetch('/value')
+      .then(response => response.json())
+      .then(data => {
+        // Update the elements on the page with the values from the dictionary
+        document.getElementById("value1").innerHTML = data.value1;
+        document.getElementById("value2").innerHTML = data.value2;
+        document.getElementById("value3").innerHTML = data.value3;
+        
+        
+      });
+  }
+  
+  // Call the updateValues function every 5 seconds
+  setInterval(updateValues, 200); // milliseconds
+  
 </script>
 
 </body>
