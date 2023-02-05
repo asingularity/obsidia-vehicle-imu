@@ -398,7 +398,9 @@ def main():
     # session_timestamp = '2023-01-23T11:11:45.184903'  # second training attempt
     # session_timestamp = '2023-01-23T12:06:39.227689'  # driving around OB
 
-    session_timestamps = ['2023-01-30T11:30:00.426262', '2023-01-30T11:30:00.703324', '2023-01-30T11:30:00.475365']
+    # session_timestamps = ['2023-01-30T11:30:00.426262', '2023-01-30T11:30:00.703324', '2023-01-30T11:30:00.475365']
+
+    session_timestamps = ['2023-02-02T11:15:18.286677']
 
     for session_timestamp in session_timestamps:
         print()
