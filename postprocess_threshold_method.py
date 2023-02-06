@@ -21,7 +21,7 @@ REF_TIMESTAMP = '2023-01-01T00:00:00.000000'
 
 ACC_THRESH = 3.0
 BRAKE_THRESH = 3.0
-CORNER_THRESH = 3.0
+CORNER_THRESH = 2.5
 
 
 def _detect_accel_events(acc_arr, timestamp_arr):
@@ -158,7 +158,7 @@ def _detect_brake_events(acc_arr, timestamp_arr):
     return detected_event_timestamps, detected_event_types
 
 
-def _detect_swerve_left_events(acc_arr, timestamp_arr):
+def _detect_swerve_right_events(acc_arr, timestamp_arr):
     '''
 
     An event will be logged if the acceleration exceeds the threshold for at least 100ms.
@@ -226,7 +226,7 @@ def _detect_swerve_left_events(acc_arr, timestamp_arr):
 
 
 
-def _detect_swerve_right_events(acc_arr, timestamp_arr):
+def _detect_swerve_left_events(acc_arr, timestamp_arr):
     '''
 
     An event will be logged if the acceleration exceeds the threshold for at least 100ms.
