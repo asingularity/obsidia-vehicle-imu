@@ -50,6 +50,7 @@ def realtime_loop(sensor, led_red, led_green, led_blue):
 
     t0 = 0
     last_led_time = 0
+    last_put_time = 0
 
     fps = FPSCounter(params={'display_every_k_seconds': 2})
 
@@ -70,6 +71,7 @@ def realtime_loop(sensor, led_red, led_green, led_blue):
 
             last_led_time = time.time()
 
+        if time.time() - last_put_time > 1.0:
             # for testing, put a new value to the webserver
             url = "http://192.168.4.1:8000/update"
             try:
@@ -77,6 +79,8 @@ def realtime_loop(sensor, led_red, led_green, led_blue):
             except:
                 print('cannot put..')
                 pass
+
+            last_put_time = time.time()
 
         # process data
 
