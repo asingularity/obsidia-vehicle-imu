@@ -82,7 +82,7 @@ def realtime_loop(sensor, led_red, led_green, led_blue):
 
             last_led_time = time.time()
 
-        if time.time() - last_put_time > 1.0:
+        if time.time() - last_put_time > 0.2:
             # for testing, put a new value to the webserver
             url = "http://192.168.4.1:8000/update"
             try:
