@@ -2,6 +2,7 @@ import os
 from datetime import datetime
 from parameters import DATASETS_FOLDER, RESULTS_FOLDER
 from postprocess import _load_acc_file, _load_ground_truth_file, _timestamp_str_to_float
+from matlab_utils import get_array_from_mat
 import numpy as np
 import matplotlib
 matplotlib.use('Agg')
@@ -294,7 +295,8 @@ def _detect_swerve_left_events(acc_arr, timestamp_arr):
 
 
 
-def _generate_graph(exp_path, dataset_name, session_timestamp, dataset_event_types, timestamp_arr_meas, values_arr_meas, timestamp_arr_gt, events_arr_gt, values_label, detection_label, event_indices_for_vlines, detected_event_timestamps, detected_event_types, thresh_plot):
+def _generate_graph(exp_path, dataset_name, session_timestamp, dataset_event_types, timestamp_arr_meas, values_arr_meas, timestamp_arr_gt, events_arr_gt, values_label, detection_label, event_indices_for_vlines,
+                    thresh_detected_event_timestamps, thresh_detected_event_types, anom_detected_event_timestamps, anom_detected_event_types, thresh_plot):
     '''
 
     :param timestamp_arr:
@@ -306,7 +308,11 @@ def _generate_graph(exp_path, dataset_name, session_timestamp, dataset_event_typ
     :return:
     '''
 
-    num_subplots = 3
+    if anom_detected_event_timestamps is None:
+        num_subplots = 3
+    else:
+        num_subplots = 4
+
     fig_bar, ax = plt.subplots(nrows=num_subplots, ncols=1, sharex=True, figsize=(40, 20))
 
     ax[1].cla()
@@ -314,7 +320,7 @@ def _generate_graph(exp_path, dataset_name, session_timestamp, dataset_event_typ
     ax[1].get_xaxis().get_major_formatter().set_scientific(False)
     ax[1].get_yaxis().get_major_formatter().set_scientific(False)
     ax[1].axhline(y=thresh_plot, color='b')
-    ax[1].set_title(dataset_name + ' ' + values_label + ', with detected events')
+    ax[1].set_title(dataset_name + ' ' + values_label + ', with THRESH detected events')
 
     ax[0].cla()
     ax[0].plot(timestamp_arr_meas, values_arr_meas, 'r.')
@@ -322,19 +328,32 @@ def _generate_graph(exp_path, dataset_name, session_timestamp, dataset_event_typ
     ax[0].get_yaxis().get_major_formatter().set_scientific(False)
     ax[0].set_title(dataset_name + ' ' + values_label + ', with ground truth events')
 
-    ax[2].cla()
-    try:
-        ax[2].plot(timestamp_arr_gt, events_arr_gt, 'ko')
-    except:
-        print()
-        print('timestamp_arr_gt', timestamp_arr_gt)
-        print('events_arr', events_arr_gt)
-        print()
-        raise
+    do_plot_ground_truths = False
+    if do_plot_ground_truths:
+        ax[2].cla()
+        try:
+            ax[2].plot(timestamp_arr_gt, events_arr_gt, 'ko')
+        except:
+            print()
+            print('timestamp_arr_gt', timestamp_arr_gt)
+            print('events_arr', events_arr_gt)
+            print()
+            raise
 
-    ax[2].get_xaxis().get_major_formatter().set_scientific(False)
-    ax[2].get_yaxis().get_major_formatter().set_scientific(False)
-    ax[2].set_title(dataset_name + ' ' + 'ground truth events start: ' + str(dataset_event_types))
+        ax[2].get_xaxis().get_major_formatter().set_scientific(False)
+        ax[2].get_yaxis().get_major_formatter().set_scientific(False)
+        ax[2].set_title(dataset_name + ' ' + 'ground truth events start: ' + str(dataset_event_types))
+
+    if anom_detected_event_timestamps is not None:
+        ax[2].cla()
+        ax[2].plot(timestamp_arr_meas, values_arr_meas, 'r.')
+        ax[2].get_xaxis().get_major_formatter().set_scientific(False)
+        ax[2].get_yaxis().get_major_formatter().set_scientific(False)
+        ax[2].set_title(dataset_name + ' ' + values_label + ', with ANOM detected events')
+
+        for k in range(len(anom_detected_event_timestamps)):
+            event_t = anom_detected_event_timestamps[k]
+            ax[2].axvline(x=event_t, color='g')
 
     for k in range(len(events_arr_gt)):
         event_t = timestamp_arr_gt[k]
@@ -342,14 +361,59 @@ def _generate_graph(exp_path, dataset_name, session_timestamp, dataset_event_typ
         if int(event_index) in event_indices_for_vlines:
             ax[0].axvline(x=event_t, color='g')
 
-    for k in range(len(detected_event_timestamps)):
-        event_t = detected_event_timestamps[k]
+    for k in range(len(thresh_detected_event_timestamps)):
+        event_t = thresh_detected_event_timestamps[k]
         ax[1].axvline(x=event_t, color='g')
 
     fig_bar.savefig(os.path.join(exp_path + "/" + dataset_name + "_" + session_timestamp + "_" + detection_label + "_detect.png"), dpi=100)
 
 
-def process_dataset(session_timestamp, dataset_event_types, dataset_name, exp_path):
+def _load_detect_anom_events(anom_det_results_folder_name, start_time):
+    '''
+
+    :param anom_det_results_folder_name:
+    :return:
+    '''
+
+    results_path = os.path.join(RESULTS_FOLDER, anom_det_results_folder_name)
+
+    # threshold file format:
+    # THdet1 = 7.9853
+    # THdet2 = 3.3
+    # THdet3 = 3.1
+    # THdet4 = 4.0
+
+    thfile = open(os.path.join(results_path, 'thresholds.txt'), 'r')
+    th = []
+    for line in thfile:
+        th.append(float(line.split('=')[1]))
+    th = np.array(th)
+
+    tu = get_array_from_mat(mat_filename=os.path.join(results_path, 'tu.mat')).flatten()
+
+    tmp1 = get_array_from_mat(mat_filename=os.path.join(results_path, 'ymfilt1.mat')).flatten()
+    tmp2 = get_array_from_mat(mat_filename=os.path.join(results_path, 'ymfilt2.mat')).flatten()
+    tmp3 = get_array_from_mat(mat_filename=os.path.join(results_path, 'ymfilt3.mat')).flatten()
+    tmp4 = get_array_from_mat(mat_filename=os.path.join(results_path, 'ymfilt4.mat')).flatten()
+
+    anom_detected_event_timestamps_1 = start_time + tu[np.nonzero(tmp1 > th[1 - 1])]
+    anom_detected_event_timestamps_2 = start_time + tu[np.nonzero(tmp2 > th[2 - 1])]
+    anom_detected_event_timestamps_3 = start_time + tu[np.nonzero(tmp3 > th[3 - 1])]
+    anom_detected_event_timestamps_4 = start_time + tu[np.nonzero(tmp4 > th[4 - 1])]
+
+    anom_detected_event_types_1 = np.ones_like(anom_detected_event_timestamps_1) * 1
+    anom_detected_event_types_2 = np.ones_like(anom_detected_event_timestamps_1) * 2
+    anom_detected_event_types_3 = np.ones_like(anom_detected_event_timestamps_1) * 3
+    anom_detected_event_types_4 = np.ones_like(anom_detected_event_timestamps_1) * 4
+
+    return  anom_detected_event_timestamps_1, anom_detected_event_types_1, \
+            anom_detected_event_timestamps_2, anom_detected_event_types_2, \
+            anom_detected_event_timestamps_3, anom_detected_event_types_3, \
+            anom_detected_event_timestamps_4, anom_detected_event_types_4
+
+
+
+def process_dataset(session_timestamp, dataset_event_types, dataset_name, exp_path, anom_det_results_folder_name):
 
     dataset_index_str = '0'
 
@@ -361,7 +425,24 @@ def process_dataset(session_timestamp, dataset_event_types, dataset_name, exp_pa
     timestamp_arr_gt, events_arr_gt = _load_ground_truth_file(filename=os.path.join(DATASETS_FOLDER, session_timestamp + '_ground_truth.txt'), event_types=dataset_event_types)
 
     # detect events
-    detected_event_timestamps, detected_event_types = _detect_accel_events(acc_arr=acc_x_arr, timestamp_arr=timestamp_arr_acc)
+    thresh_detected_event_timestamps, thresh_detected_event_types = _detect_accel_events(acc_arr=acc_x_arr, timestamp_arr=timestamp_arr_acc)
+
+    if anom_det_results_folder_name is not None:
+        # load results
+        # generate detection timestamps and event types array for each event type
+        anom_detected_event_timestamps_1, anom_detected_event_types_1, \
+            anom_detected_event_timestamps_2, anom_detected_event_types_2, \
+            anom_detected_event_timestamps_3, anom_detected_event_types_3, \
+            anom_detected_event_timestamps_4, anom_detected_event_types_4 = _load_detect_anom_events(anom_det_results_folder_name=anom_det_results_folder_name, start_time=timestamp_arr_acc[0])
+    else:
+        anom_detected_event_timestamps_1 = None
+        anom_detected_event_types_1 = None
+        anom_detected_event_timestamps_2 = None
+        anom_detected_event_types_2 = None
+        anom_detected_event_timestamps_3 = None
+        anom_detected_event_types_3 = None
+        anom_detected_event_timestamps_4 = None
+        anom_detected_event_types_4 = None
 
     _generate_graph(exp_path=exp_path,
                     dataset_name=dataset_name,
@@ -374,12 +455,14 @@ def process_dataset(session_timestamp, dataset_event_types, dataset_name, exp_pa
                     values_label='accelerometer X',
                     detection_label='acceleration',
                     event_indices_for_vlines=[1],
-                    detected_event_timestamps=detected_event_timestamps,
-                    detected_event_types=detected_event_types,
+                    thresh_detected_event_timestamps=thresh_detected_event_timestamps,
+                    thresh_detected_event_types=thresh_detected_event_types,
+                    anom_detected_event_timestamps=anom_detected_event_timestamps_1,
+                    anom_detected_event_types=anom_detected_event_types_1,
                     thresh_plot=ACC_THRESH)
 
     # detect events
-    detected_event_timestamps, detected_event_types = _detect_brake_events(acc_arr=acc_x_arr, timestamp_arr=timestamp_arr_acc)
+    thresh_detected_event_timestamps, thresh_detected_event_types = _detect_brake_events(acc_arr=acc_x_arr, timestamp_arr=timestamp_arr_acc)
 
     _generate_graph(exp_path=exp_path,
                     dataset_name=dataset_name,
@@ -392,12 +475,14 @@ def process_dataset(session_timestamp, dataset_event_types, dataset_name, exp_pa
                     values_label='accelerometer X',
                     detection_label='braking',
                     event_indices_for_vlines=[2],
-                    detected_event_timestamps=detected_event_timestamps,
-                    detected_event_types=detected_event_types,
+                    thresh_detected_event_timestamps=thresh_detected_event_timestamps,
+                    thresh_detected_event_types=thresh_detected_event_types,
+                    anom_detected_event_timestamps=anom_detected_event_timestamps_2,
+                    anom_detected_event_types=anom_detected_event_types_2,
                     thresh_plot=-BRAKE_THRESH)
 
     # detect events
-    detected_event_timestamps, detected_event_types = _detect_swerve_left_events(acc_arr=acc_y_arr, timestamp_arr=timestamp_arr_acc)
+    thresh_detected_event_timestamps, thresh_detected_event_types = _detect_swerve_left_events(acc_arr=acc_y_arr, timestamp_arr=timestamp_arr_acc)
 
     _generate_graph(exp_path=exp_path,
                     dataset_name=dataset_name,
@@ -410,12 +495,14 @@ def process_dataset(session_timestamp, dataset_event_types, dataset_name, exp_pa
                     values_label='accelerometer Y',
                     detection_label='swerve_left',
                     event_indices_for_vlines=[3],
-                    detected_event_timestamps=detected_event_timestamps,
-                    detected_event_types=detected_event_types,
+                    thresh_detected_event_timestamps=thresh_detected_event_timestamps,
+                    thresh_detected_event_types=thresh_detected_event_types,
+                    anom_detected_event_timestamps=anom_detected_event_timestamps_3,
+                    anom_detected_event_types=anom_detected_event_types_3,
                     thresh_plot=-CORNER_THRESH)
 
     # detect events
-    detected_event_timestamps, detected_event_types = _detect_swerve_right_events(acc_arr=acc_y_arr, timestamp_arr=timestamp_arr_acc)
+    thresh_detected_event_timestamps, thresh_detected_event_types = _detect_swerve_right_events(acc_arr=acc_y_arr, timestamp_arr=timestamp_arr_acc)
 
     _generate_graph(exp_path=exp_path,
                     dataset_name=dataset_name,
@@ -428,8 +515,10 @@ def process_dataset(session_timestamp, dataset_event_types, dataset_name, exp_pa
                     values_label='accelerometer Y',
                     detection_label='swerve_right',
                     event_indices_for_vlines=[4],
-                    detected_event_timestamps=detected_event_timestamps,
-                    detected_event_types=detected_event_types,
+                    thresh_detected_event_timestamps=thresh_detected_event_timestamps,
+                    thresh_detected_event_types=thresh_detected_event_types,
+                    anom_detected_event_timestamps=anom_detected_event_timestamps_4,
+                    anom_detected_event_types=anom_detected_event_types_4,
                     thresh_plot=-CORNER_THRESH)
 
 
@@ -457,23 +546,30 @@ def main():
 
     # load datasets
 
+    # dataset format:
+    #   'dataset_name': (timestamp_str, event_types_dict, anom_det_results_folder_name)
+    #       anom_det_results_folder_name: assume to be in ~/projects/obsidia-vehicle-results, if not None, should contain:
+    #           tu.mat
+    #           thresholds.txt
+    #           ymfilt1.mat, ymfilt2.mat, ymfilt3.mat, ymfilt4.mat
+
     datasets = {  # name, timestamp, event_types
-        # 'mira_mesa_1': ('2023-01-21T13:06:39.069536', None),
-        # 'mira_mesa_2': ('2023-01-21T14:17:09.160292', None),
-        # 'park_driving_1': ('2023-01-22T14:17:09.241501', {'start accelerate': 1, 'start break': 2, 'start turn': 3, 'start other': 4, 'end': 0}),
-        # 'park_driving_2': ('2023-01-23T11:11:45.184903', {'start accelerate': 1, 'start break': 2, 'start turn': 3, 'start other': 4, 'end': 0}),
-        # 'OB_driving': ('2023-01-23T12:06:39.227689', {'start accelerate': 1, 'start break': 2, 'start turn': 3, 'end': 0}),
-        # 'acceleration_training': ('2023-01-30T11:30:00.426262', {'start accel': 1, 'start break': 2, 'start turn_left': 3, 'start turn_right': 4, 'end': 0}),
-        # 'braking_training': ('2023-01-30T11:30:00.703324', {'start accel': 1, 'start break': 2, 'start turn_left': 3, 'start turn_right': 4, 'end': 0}),
-        # 'swerve_training': ('2023-01-30T11:30:00.475365', {'start accel': 1, 'start break': 2, 'start turn_left': 3, 'start turn_right': 4, 'end': 0}),
-        'testing': ('2023-02-02T11:15:18.286677', {'start accel': 1, 'start break': 2, 'start turn_left': 3, 'start turn_right': 4, 'end': 0}),
+        # 'mira_mesa_1': ('2023-01-21T13:06:39.069536', None, None),
+        # 'mira_mesa_2': ('2023-01-21T14:17:09.160292', None, None),
+        # 'park_driving_1': ('2023-01-22T14:17:09.241501', {'start accelerate': 1, 'start break': 2, 'start turn': 3, 'start other': 4, 'end': 0}, None),
+        # 'park_driving_2': ('2023-01-23T11:11:45.184903', {'start accelerate': 1, 'start break': 2, 'start turn': 3, 'start other': 4, 'end': 0}, None),
+        # 'OB_driving': ('2023-01-23T12:06:39.227689', {'start accelerate': 1, 'start break': 2, 'start turn': 3, 'end': 0}, None),
+        # 'acceleration_training': ('2023-01-30T11:30:00.426262', {'start accel': 1, 'start break': 2, 'start turn_left': 3, 'start turn_right': 4, 'end': 0}, None),
+        # 'braking_training': ('2023-01-30T11:30:00.703324', {'start accel': 1, 'start break': 2, 'start turn_left': 3, 'start turn_right': 4, 'end': 0}, None),
+        # 'swerve_training': ('2023-01-30T11:30:00.475365', {'start accel': 1, 'start break': 2, 'start turn_left': 3, 'start turn_right': 4, 'end': 0}, None),
+        'testing': ('2023-02-02T11:15:18.286677', {'start accel': 1, 'start break': 2, 'start turn_left': 3, 'start turn_right': 4, 'end': 0}, 'matched-filter-results-Feb-5-23'),
     }
 
     # run detector and display vs. ground truth events
     # calculate false positive rate
 
     for dataset_name in datasets.keys():
-        (dataset_timestamp, dataset_event_types) = datasets[dataset_name]
+        (dataset_timestamp, dataset_event_types, anom_det_results_folder_name) = datasets[dataset_name]
 
         print()
         print('processing: ', dataset_name, ':', dataset_timestamp)
@@ -482,7 +578,8 @@ def main():
         process_dataset(session_timestamp=dataset_timestamp,
                         dataset_event_types=dataset_event_types,
                         dataset_name=dataset_name,
-                        exp_path=exp_path)
+                        exp_path=exp_path,
+                        anom_det_results_folder_name=anom_det_results_folder_name)
 
 
 if __name__ == '__main__':
