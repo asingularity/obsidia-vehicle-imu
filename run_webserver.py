@@ -39,11 +39,17 @@ page_test = '''
 .right-bar-graphs-container {
     float: right;
 }
+.label {
+  text-align: center;
+  font-size: 14px; /* smaller font size */
+  margin-bottom: 10px; /* space between label and bar graph */
+}
 </style>
 </head>
 <body>
 
 <div class="left-bar-graphs-container">
+  <div class="label">Accelerometer</div>
   <div class="bar-graph">
     <div class="bar" id="bar1"></div>
   </div>
@@ -55,6 +61,7 @@ page_test = '''
   </div>
 </div>
 <div class="right-bar-graphs-container">
+  <div class="label">Gyroscope</div>
   <div class="bar-graph">
     <div class="bar" id="bar4"></div>
   </div>
