@@ -1,3 +1,4 @@
+import numpy as np
 import os
 import time
 from datetime import datetime
@@ -54,6 +55,10 @@ def realtime_loop(sensor, led_red, led_green, led_blue):
     last_put_time = 0
     last_alert_time = 0
 
+    mean_accel = np.zeros(3)
+    mean_gyro = np.zeros(3)
+    mean_tau = 0.999
+
     fps = FPSCounter(params={'display_every_k_seconds': 2})
 
     global START_BUTTON_PUSHED
@@ -64,6 +69,10 @@ def realtime_loop(sensor, led_red, led_green, led_blue):
         timestamp = datetime.now().isoformat()
         accel = sensor.acceleration
         gyro = sensor.gyro
+
+        for k in range(3):
+            mean_accel[k] = mean_accel[k] * mean_tau + accel[k] * (1.0 - mean_tau)
+            mean_gyro[k] = mean_gyro[k] * mean_tau + gyro[k] * (1.0 - mean_tau)
 
         # flash red when running real-time code
         if time.time() - last_led_time > 0.25:
@@ -85,9 +94,13 @@ def realtime_loop(sensor, led_red, led_green, led_blue):
                 else:
                     alert_now = 'Normal Driving'
 
-                accel_scaled = (accel[0] * 0.5, accel[1] * 0.5, (accel[2] + 10) * 0.5)
-                gyro_scaled = (gyro[0] * 2, gyro[1] * 2, gyro[2] * 2)
+                accel_scaled = [0, 0, 0]
+                gyro_scaled = [0, 0, 0]
 
+                for k in range(3):
+                    accel_scaled[k] = (accel[k] - mean_accel[k]) / mean_accel[k]
+                    gyro_scaled[k] = (gyro[k] - mean_gyro[k]) / mean_gyro[k]
+                    
                 requests.put(url + '/' + json.dumps({'bar1': accel_scaled[0], 'bar2': accel_scaled[1], 'bar3': accel_scaled[2],
                                                      'bar4': gyro_scaled[0], 'bar5': gyro_scaled[1], 'bar6': gyro_scaled[2],
                                                      'alert': alert_now}))
