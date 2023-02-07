@@ -99,7 +99,7 @@ page_test = '''
           bar.style.height = height + "px";
         });
     
-        message.innerHTML = "Hello World!";
+        message.innerHTML = data.alert;
         
       });
   }
