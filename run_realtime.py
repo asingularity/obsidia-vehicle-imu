@@ -57,7 +57,7 @@ def realtime_loop(sensor, led_red, led_green, led_blue):
 
     mean_accel = np.zeros(3)
     mean_gyro = np.zeros(3)
-    mean_tau = 0.999
+    mean_tau = 0.9999
 
     fps = FPSCounter(params={'display_every_k_seconds': 2})
 
