@@ -6,3 +6,4 @@ scipy
 psutil
 requests
 bottle
+cython

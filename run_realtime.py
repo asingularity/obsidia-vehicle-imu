@@ -70,6 +70,11 @@ def realtime_loop(sensor, led_red, led_green, led_blue):
         accel = sensor.acceleration
         gyro = sensor.gyro
 
+        # process data
+
+        # batch inputs, with enough overlap for filter
+
+        # calculate mean, for webpage bar graph
         for k in range(3):
             mean_accel[k] = mean_accel[k] * mean_tau + accel[k] * (1.0 - mean_tau)
             mean_gyro[k] = mean_gyro[k] * mean_tau + gyro[k] * (1.0 - mean_tau)
@@ -82,6 +87,7 @@ def realtime_loop(sensor, led_red, led_green, led_blue):
 
             last_led_time = time.time()
 
+        # put values and alert for webpage
         if time.time() - last_put_time > 0.2:
             # for testing, put a new value to the webserver
             url = "http://192.168.4.1:8000/update"
@@ -104,17 +110,13 @@ def realtime_loop(sensor, led_red, led_green, led_blue):
                 requests.put(url + '/' + json.dumps({'bar1': accel_scaled[0], 'bar2': accel_scaled[1], 'bar3': accel_scaled[2],
                                                      'bar4': gyro_scaled[0], 'bar5': gyro_scaled[1], 'bar6': gyro_scaled[2],
                                                      'alert': alert_now}))
-
             except:
                 print('cannot put..')
                 pass
 
             last_put_time = time.time()
 
-        # process data
-
         # check on memory usage
-
         if time.time() - t0 > 5:
             print()
             print('*********************************************')
