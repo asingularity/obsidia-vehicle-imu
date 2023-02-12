@@ -49,10 +49,10 @@ keyboard.on_press(on_keypress, suppress=True)
 
 
 def _load_filters():
-    mfiltd1 = get_array_from_mat(mat_filename='matlab/mfiltd1.mat')
-    mfiltd2 = get_array_from_mat(mat_filename='matlab/mfiltd2.mat')
-    mfiltd3 = get_array_from_mat(mat_filename='matlab/mfiltd3.mat')
-    mfiltd4 = get_array_from_mat(mat_filename='matlab/mfiltd4.mat')
+    mfiltd1 = get_array_from_mat(mat_filename='matlab/mfiltd1.mat').flatten()
+    mfiltd2 = get_array_from_mat(mat_filename='matlab/mfiltd2.mat').flatten()
+    mfiltd3 = get_array_from_mat(mat_filename='matlab/mfiltd3.mat').flatten()
+    mfiltd4 = get_array_from_mat(mat_filename='matlab/mfiltd4.mat').flatten()
 
     return mfiltd1, mfiltd2, mfiltd3, mfiltd4
 
@@ -77,7 +77,7 @@ def realtime_loop(sensor, led_red, led_green, led_blue):
     # processing params
     buffer_len = 1000
     buffer_overlap = 100  # overlap between buffers, for filter
-    accel_buffer = np.zeros(buffer_len + buffer_overlap, 3)
+    accel_buffer = np.zeros((buffer_len + buffer_overlap, 3))
     buffer_t = 0
     mfiltd1, mfiltd2, mfiltd3, mfiltd4 = _load_filters()
 
