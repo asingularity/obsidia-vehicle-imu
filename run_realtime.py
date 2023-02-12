@@ -110,6 +110,15 @@ def realtime_loop(sensor, led_red, led_green, led_blue):
             new_data_index = buffer_overlap
             run_matched_filters_cython(accel_buffer, buffer_len, new_data_index,
                                        mfiltd1, mfiltd2, mfiltd3, mfiltd4)
+            buffer_t = 0
+            for k in range(buffer_overlap):
+
+                # TODO verify this is right!!!
+
+                accel_buffer[buffer_t, 0] = accel_buffer[buffer_len+buffer_t, 0]            
+                accel_buffer[buffer_t, 1] = accel_buffer[buffer_len+buffer_t, 1] 
+                accel_buffer[buffer_t, 2] = accel_buffer[buffer_len+buffer_t, 2] 
+                buffer_t += 1
 
         # calculate mean, for webpage bar graph
         for k in range(3):
