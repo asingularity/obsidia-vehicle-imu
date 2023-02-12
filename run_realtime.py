@@ -21,6 +21,8 @@ from parameters import DATASETS_FOLDER
 import keyboard
 import psutil
 
+from cython_ref import run_matched_filters_cython
+
 
 LED_EVENT_START_TIME = time.time()
 START_BUTTON_PUSHED = False
@@ -63,6 +65,11 @@ def realtime_loop(sensor, led_red, led_green, led_blue):
 
     global START_BUTTON_PUSHED
 
+    # processing params
+    buffer_len = 1000
+    accel_buffer = np.zeros(buffer_len, 3)
+    buffer_t = 0
+
     while not START_BUTTON_PUSHED:
 
         # get data
@@ -71,8 +78,12 @@ def realtime_loop(sensor, led_red, led_green, led_blue):
         gyro = sensor.gyro
 
         # process data
+        accel_buffer[buffer_t, 0] = accel[0]
+        accel_buffer[buffer_t, 1] = accel[1]
+        accel_buffer[buffer_t, 2] = accel[2]
 
         # batch inputs, with enough overlap for filter
+
 
         # calculate mean, for webpage bar graph
         for k in range(3):
