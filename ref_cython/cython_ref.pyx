@@ -19,7 +19,16 @@ from libc.math cimport tanh
 @cython.boundscheck(False) # turn off bounds-checking for entire function
 @cython.wraparound(False)  # turn off negative index wrapping for entire function
 @cython.cdivision(True)  # for modulo being fast
-def run_matched_filters_cython():
+def run_matched_filters_cython(np.ndarray[np.float64_t, ndim=2] accel_buffer,
+                               np.int32_t buffer_len,
+                               np.int32_t new_data_index,
+                               np.ndarray[np.float64_t, ndim=1] mfiltd1,
+                               np.ndarray[np.float64_t, ndim=1] mfiltd2,
+                               np.ndarray[np.float64_t, ndim=1] mfiltd3,
+                               np.ndarray[np.float64_t, ndim=1] mfiltd4):
+
+
+    
     return
 
 

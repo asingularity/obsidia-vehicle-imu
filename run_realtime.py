@@ -74,17 +74,24 @@ def realtime_loop(sensor, led_red, led_green, led_blue):
 
     global START_BUTTON_PUSHED
 
-    # processing params
-    buffer_len = 1000
-    buffer_overlap = 100  # overlap between buffers, for filter
-    accel_buffer = np.zeros((buffer_len + buffer_overlap, 3))
-    buffer_t = 0
     mfiltd1, mfiltd2, mfiltd3, mfiltd4 = _load_filters()
 
     print('mfiltd1', mfiltd1.shape)
     print('mfiltd2', mfiltd2.shape)
     print('mfiltd3', mfiltd3.shape)
     print('mfiltd4', mfiltd4.shape)
+
+    # mfiltd1 (884,)
+    # mfiltd2 (882,)
+    # mfiltd3 (820,)
+    # mfiltd4 (820,)
+
+    # processing params
+    # batch inputs, with enough overlap for filter
+    buffer_len = 1000  # how many points to process per batch
+    buffer_overlap = max(max(mfiltd1.shape[0], mfiltd2.shape[0]), max(mfiltd3.shape[0], mfiltd4.shape[0]))  # overlap between buffers, for filter
+    accel_buffer = np.zeros((buffer_len + buffer_overlap, 3))
+    buffer_t = 0
 
     while not START_BUTTON_PUSHED:
 
@@ -98,10 +105,11 @@ def realtime_loop(sensor, led_red, led_green, led_blue):
         accel_buffer[buffer_t, 1] = accel[1]
         accel_buffer[buffer_t, 2] = accel[2]
 
-        # batch inputs, with enough overlap for filter
-        new_data_index = buffer_overlap
-        run_matched_filters_cython(accel_buffer, buffer_len, new_data_index,
-                                   mfiltd1, mfiltd2, mfiltd3, mfiltd4)
+        buffer_t += 1
+        if buffer_t == accel_buffer.shape[0] - 1:
+            new_data_index = buffer_overlap
+            run_matched_filters_cython(accel_buffer, buffer_len, new_data_index,
+                                       mfiltd1, mfiltd2, mfiltd3, mfiltd4)
 
         # calculate mean, for webpage bar graph
         for k in range(3):
