@@ -22,6 +22,7 @@ import keyboard
 import psutil
 
 from cython_ref import run_matched_filters_cython
+from matlab_utils import get_array_from_mat
 
 
 LED_EVENT_START_TIME = time.time()
@@ -47,6 +48,14 @@ def on_keypress(e):
 keyboard.on_press(on_keypress, suppress=True)
 
 
+def _load_filters():
+    mfiltd1 = get_array_from_mat(mat_filename='matlab/mfiltd1.mat')
+    mfiltd2 = get_array_from_mat(mat_filename='matlab/mfiltd2.mat')
+    mfiltd3 = get_array_from_mat(mat_filename='matlab/mfiltd3.mat')
+    mfiltd4 = get_array_from_mat(mat_filename='matlab/mfiltd4.mat')
+
+    return mfiltd1, mfiltd2, mfiltd3, mfiltd4
+
 def realtime_loop(sensor, led_red, led_green, led_blue):
     '''
     actually runs the algorithm
@@ -67,8 +76,15 @@ def realtime_loop(sensor, led_red, led_green, led_blue):
 
     # processing params
     buffer_len = 1000
-    accel_buffer = np.zeros(buffer_len, 3)
+    buffer_overlap = 100  # overlap between buffers, for filter
+    accel_buffer = np.zeros(buffer_len + buffer_overlap, 3)
     buffer_t = 0
+    mfiltd1, mfiltd2, mfiltd3, mfiltd4 = _load_filters()
+
+    print('mfiltd1', mfiltd1.shape)
+    print('mfiltd2', mfiltd2.shape)
+    print('mfiltd3', mfiltd3.shape)
+    print('mfiltd4', mfiltd4.shape)
 
     while not START_BUTTON_PUSHED:
 
@@ -83,7 +99,9 @@ def realtime_loop(sensor, led_red, led_green, led_blue):
         accel_buffer[buffer_t, 2] = accel[2]
 
         # batch inputs, with enough overlap for filter
-
+        new_data_index = buffer_overlap
+        run_matched_filters_cython(accel_buffer, buffer_len, new_data_index,
+                                   mfiltd1, mfiltd2, mfiltd3, mfiltd4)
 
         # calculate mean, for webpage bar graph
         for k in range(3):
