@@ -120,13 +120,13 @@ def realtime_loop(sensor, led_red, led_green, led_blue):
                                                                     mfiltd1, mfiltd2, mfiltd3, mfiltd4,
                                                                     lm1, lm2, lm3, lm4)
 
-            if det_1:
+            if det_1>0:
                 last_det_t[0] = time.time()
-            if det_2:
+            if det_2>0:
                 last_det_t[1] = time.time()
-            if det_3:
+            if det_3>0:
                 last_det_t[2] = time.time()
-            if det_4:
+            if det_4>0:
                 last_det_t[3] = time.time()
 
             buffer_t = 0
@@ -141,6 +141,7 @@ def realtime_loop(sensor, led_red, led_green, led_blue):
 
         if time.time() - last_display_time > 0.5:
             print('<<<DET<<< ', last_det_t - time.time() < 1.0)
+            last_display_time = time.time()
 
         # calculate mean, for webpage bar graph
         for k in range(3):
