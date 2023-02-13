@@ -123,7 +123,7 @@ def realtime_loop(sensor, led_red, led_green, led_blue):
             print()
             print('BEFORE CALL ')
             # print('accel_buffer', accel_buffer)
-            print('mfiltd1', np.sum(np.multiply(mfiltd1, accel_buffer[new_data_index-lm1:new_data_index, 0])))
+            print('mfiltd1', 1/lm1 * np.sum(np.multiply(mfiltd1, accel_buffer[new_data_index-lm1:new_data_index, 0])))
             print()
 
             det_1, det_2, det_3, det_4, ymfilt1_ii, ymfilt2_ii, ymfilt3_ii, ymfilt4_ii = run_matched_filters_cython(accel_buffer, buffer_len, new_data_index,
