@@ -30,7 +30,7 @@ def run_matched_filters_cython(np.ndarray[np.float64_t, ndim=2] accel_buffer,
                                np.int32_t lm2,
                                np.int32_t lm3,
                                np.int32_t lm4,
-                               np.float64_t tmp_out):
+                               np.ndarray[np.float64_t, ndim=2] tmp_out):
 
         #REAL-TIME UPDATE
 
