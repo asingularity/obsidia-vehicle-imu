@@ -29,7 +29,8 @@ def run_matched_filters_cython(np.ndarray[np.float64_t, ndim=2] accel_buffer,
                                np.int32_t lm1,
                                np.int32_t lm2,
                                np.int32_t lm3,
-                               np.int32_t lm4):
+                               np.int32_t lm4,
+                               np.float64_t tmp_out):
 
         #REAL-TIME UPDATE
 
@@ -55,7 +56,7 @@ def run_matched_filters_cython(np.ndarray[np.float64_t, ndim=2] accel_buffer,
         THdet4=4.0         #detection threshold for matched filter4
         fs=410.3614         #sampling rate that best matches to the actual samples
 
-        for ii in range(new_data_index, buffer_len):
+        for ii in range(new_data_index, new_data_index + buffer_len):
 
             ymfilt1_prev = ymfilt1_ii
             ymfilt2_prev = ymfilt2_ii
@@ -83,18 +84,35 @@ def run_matched_filters_cython(np.ndarray[np.float64_t, ndim=2] accel_buffer,
                 ymfilt4_ii = ymfilt4_ii + mfiltd4[k] * accel_buffer[ii-lm4+k, 1]
             ymfilt4_ii = 1/lm4 * ymfilt4_ii
 
+            tmp_out[ii, 0] = ymfilt1_ii
+            tmp_out[ii, 1] = ymfilt2_ii
+            tmp_out[ii, 2] = ymfilt3_ii
+            tmp_out[ii, 3] = ymfilt4_ii
+
             #REAL-TIME DETECTION
             if ymfilt1_ii >THdet1 and ymfilt1_prev <= THdet1:
                 det_1 = 1
+                tmp_out[ii, 4] = 1
+            else:
+                tmp_out[ii, 4] = 0
 
             if ymfilt2_ii >THdet2 and ymfilt2_prev <= THdet2:
                 det_2 = 1
+                tmp_out[ii, 5] = 1
+            else:
+                tmp_out[ii, 5] = 0
 
             if ymfilt3_ii >THdet3 and ymfilt3_prev <= THdet3:
                 det_3 = 1
+                tmp_out[ii, 6] = 1
+            else:
+                tmp_out[ii, 6] = 0
 
             if ymfilt4_ii >THdet4 and ymfilt4_prev <= THdet4:
                 det_4 = 1
+                tmp_out[ii, 7] = 1
+            else:
+                tmp_out[ii, 7] = 0
 
         return det_1, det_2, det_3, det_4, ymfilt1_ii, ymfilt2_ii, ymfilt3_ii, ymfilt4_ii
 
