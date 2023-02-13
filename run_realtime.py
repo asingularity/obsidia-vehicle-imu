@@ -128,7 +128,7 @@ def realtime_loop(sensor, led_red, led_green, led_blue):
             print('tmp_buffer')
             print()
             for k in range(buffer_len + buffer_overlap):
-                print(tmp_buffer[k, :])
+                print(tmp_buffer[k, :], accel_buffer[k, :])
             print()
 
             if det_1>0:
