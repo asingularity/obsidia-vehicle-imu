@@ -100,6 +100,7 @@ def realtime_loop(sensor, led_red, led_green, led_blue):
     buffer_t = 0
 
     last_det_t = np.array([0, 0, 0, 0])
+    ymfilt1_ii, ymfilt2_ii, ymfilt3_ii, ymfilt4_ii = 0,0,0,0
 
     while not START_BUTTON_PUSHED:
 
@@ -116,9 +117,9 @@ def realtime_loop(sensor, led_red, led_green, led_blue):
         buffer_t += 1
         if buffer_t == accel_buffer.shape[0] - 1:
             new_data_index = buffer_overlap
-            det_1, det_2, det_3, det_4 = run_matched_filters_cython(accel_buffer, buffer_len, new_data_index,
-                                                                    mfiltd1, mfiltd2, mfiltd3, mfiltd4,
-                                                                    lm1, lm2, lm3, lm4)
+            det_1, det_2, det_3, det_4, ymfilt1_ii, ymfilt2_ii, ymfilt3_ii, ymfilt4_ii = run_matched_filters_cython(accel_buffer, buffer_len, new_data_index,
+                                                                                                                    mfiltd1, mfiltd2, mfiltd3, mfiltd4,
+                                                                                                                    lm1, lm2, lm3, lm4)
 
             if det_1>0:
                 last_det_t[0] = time.time()
@@ -141,6 +142,7 @@ def realtime_loop(sensor, led_red, led_green, led_blue):
 
         if time.time() - last_display_time > 0.5:
             print('<<<DET<<< ', last_det_t - time.time() < 1.0)
+            print('                                                               ', ymfilt1_ii, ymfilt2_ii, ymfilt3_ii, ymfilt4_ii)
             last_display_time = time.time()
 
         # calculate mean, for webpage bar graph
