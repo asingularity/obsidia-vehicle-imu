@@ -119,6 +119,13 @@ def realtime_loop(sensor, led_red, led_green, led_blue):
         buffer_t += 1
         if buffer_t == accel_buffer.shape[0] - 1:
             new_data_index = buffer_overlap
+            
+            print()
+            print('BEFORE CALL ')
+            print('accel_buffer', accel_buffer)
+            print('mfiltd1', mfiltd1)
+            print()
+
             det_1, det_2, det_3, det_4, ymfilt1_ii, ymfilt2_ii, ymfilt3_ii, ymfilt4_ii = run_matched_filters_cython(accel_buffer, buffer_len, new_data_index,
                                                                                                                     mfiltd1, mfiltd2, mfiltd3, mfiltd4,
                                                                                                                     lm1, lm2, lm3, lm4,
