@@ -77,10 +77,10 @@ def realtime_loop(sensor, led_red, led_green, led_blue):
 
     mfiltd1, mfiltd2, mfiltd3, mfiltd4 = _load_filters()
 
-    print('mfiltd1', mfiltd1.shape)
-    print('mfiltd2', mfiltd2.shape)
-    print('mfiltd3', mfiltd3.shape)
-    print('mfiltd4', mfiltd4.shape)
+    print('mfiltd1', mfiltd1.shape)  #, mfiltd1)
+    print('mfiltd2', mfiltd2.shape)  #, mfiltd2)
+    print('mfiltd3', mfiltd3.shape)  #, mfiltd3)
+    print('mfiltd4', mfiltd4.shape)  #, mfiltd4)
 
     lm1 = mfiltd1.shape[0]
     lm2 = mfiltd2.shape[0]
@@ -151,7 +151,7 @@ def realtime_loop(sensor, led_red, led_green, led_blue):
                 buffer_t += 1
 
         if time.time() - last_display_time > 0.5:
-            print('<<<DET<<< ', last_det_t - time.time() < 1.0)
+            print('<<<DET<<< ', time.time()-last_det_t)
             print('                                                               ', ymfilt1_ii, ymfilt2_ii, ymfilt3_ii, ymfilt4_ii)
             last_display_time = time.time()
 
