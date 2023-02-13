@@ -127,9 +127,10 @@ def realtime_loop(sensor, led_red, led_green, led_blue):
             print()
             print('tmp_buffer')
             print()
-            print(tmp_buffer)
+            for k in range(buffer_len + buffer_overlap):
+                print(tmp_buffer[k, :])
             print()
-            
+
             if det_1>0:
                 last_det_t[0] = time.time()
             if det_2>0:
