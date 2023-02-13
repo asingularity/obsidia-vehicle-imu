@@ -57,6 +57,11 @@ def run_matched_filters_cython(np.ndarray[np.float64_t, ndim=2] accel_buffer,
 
         for ii in range(new_data_index, buffer_len):
 
+            ymfilt1_prev = ymfilt1_ii
+            ymfilt2_prev = ymfilt2_ii
+            ymfilt3_prev = ymfilt3_ii
+            ymfilt4_prev = ymfilt4_ii
+
             ymfilt1_ii = 0
             ymfilt2_ii = 0
             ymfilt3_ii = 0
