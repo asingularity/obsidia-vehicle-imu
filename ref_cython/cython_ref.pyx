@@ -91,7 +91,7 @@ def run_matched_filters_cython(np.ndarray[np.float64_t, ndim=2] accel_buffer,
             if ymfilt4_ii >THdet4 and ymfilt4_prev <= THdet4:
                 det_4 = 1
 
-    return det_1, det_2, det_3, det_4
+        return det_1, det_2, det_3, det_4
 
 
 
