@@ -65,6 +65,7 @@ def realtime_loop(sensor, led_red, led_green, led_blue):
     last_led_time = 0
     last_put_time = 0
     last_alert_time = 0
+    last_display_time = 0
 
     mean_accel = np.zeros(3)
     mean_gyro = np.zeros(3)
@@ -81,6 +82,11 @@ def realtime_loop(sensor, led_red, led_green, led_blue):
     print('mfiltd3', mfiltd3.shape)
     print('mfiltd4', mfiltd4.shape)
 
+    lm1 = mfiltd1.shape[0]
+    lm2 = mfiltd2.shape[0]
+    lm3 = mfiltd3.shape[0]
+    lm4 = mfiltd4.shape[0]
+
     # mfiltd1 (884,)
     # mfiltd2 (882,)
     # mfiltd3 (820,)
@@ -92,6 +98,8 @@ def realtime_loop(sensor, led_red, led_green, led_blue):
     buffer_overlap = max(max(mfiltd1.shape[0], mfiltd2.shape[0]), max(mfiltd3.shape[0], mfiltd4.shape[0]))  # overlap between buffers, for filter
     accel_buffer = np.zeros((buffer_len + buffer_overlap, 3))
     buffer_t = 0
+
+    last_det_t = np.array([0, 0, 0, 0])
 
     while not START_BUTTON_PUSHED:
 
@@ -108,8 +116,19 @@ def realtime_loop(sensor, led_red, led_green, led_blue):
         buffer_t += 1
         if buffer_t == accel_buffer.shape[0] - 1:
             new_data_index = buffer_overlap
-            run_matched_filters_cython(accel_buffer, buffer_len, new_data_index,
-                                       mfiltd1, mfiltd2, mfiltd3, mfiltd4)
+            det_1, det_2, det_3, det_4 = run_matched_filters_cython(accel_buffer, buffer_len, new_data_index,
+                                                                    mfiltd1, mfiltd2, mfiltd3, mfiltd4,
+                                                                    lm1, lm2, lm3, lm4)
+
+            if det_1:
+                last_det_t[0] = time.time()
+            if det_2:
+                last_det_t[1] = time.time()
+            if det_3:
+                last_det_t[2] = time.time()
+            if det_4:
+                last_det_t[3] = time.time()
+
             buffer_t = 0
             for k in range(buffer_overlap):
 
@@ -119,6 +138,9 @@ def realtime_loop(sensor, led_red, led_green, led_blue):
                 accel_buffer[buffer_t, 1] = accel_buffer[buffer_len+buffer_t, 1] 
                 accel_buffer[buffer_t, 2] = accel_buffer[buffer_len+buffer_t, 2] 
                 buffer_t += 1
+
+        if time.time() - last_display_time > 0.5:
+            print('<<<DET<<< ', last_det_t - time.time() < 1.0)
 
         # calculate mean, for webpage bar graph
         for k in range(3):
