@@ -26,10 +26,10 @@ def run_matched_filters_cython(np.ndarray[np.float64_t, ndim=2] accel_buffer,
                                np.ndarray[np.float64_t, ndim=1] mfiltd2,
                                np.ndarray[np.float64_t, ndim=1] mfiltd3,
                                np.ndarray[np.float64_t, ndim=1] mfiltd4,
-                               np.int32_t lm1,
-                               np.int32_t lm2,
-                               np.int32_t lm3,
-                               np.int32_t lm4,
+                               np.float64_t lm1,
+                               np.float64_t lm2,
+                               np.float64_t lm3,
+                               np.float64_t lm4,
                                np.ndarray[np.float64_t, ndim=2] tmp_out):
 
         #REAL-TIME UPDATE

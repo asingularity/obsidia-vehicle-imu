@@ -120,23 +120,23 @@ def realtime_loop(sensor, led_red, led_green, led_blue):
         if buffer_t == accel_buffer.shape[0] - 1:
             new_data_index = buffer_overlap
             
-            print()
-            print('BEFORE CALL ')
-            # print('accel_buffer', accel_buffer)
-            print('mfiltd1', 1/lm1 * np.sum(np.multiply(mfiltd1, accel_buffer[new_data_index-lm1:new_data_index, 0])))
-            print()
+            # print()
+            # print('BEFORE CALL ')
+            # # print('accel_buffer', accel_buffer)
+            # print('mfiltd1', 1/lm1 * np.sum(np.multiply(mfiltd1, accel_buffer[new_data_index-lm1:new_data_index, 0])))
+            # print()
 
             det_1, det_2, det_3, det_4, ymfilt1_ii, ymfilt2_ii, ymfilt3_ii, ymfilt4_ii = run_matched_filters_cython(accel_buffer, buffer_len, new_data_index,
                                                                                                                     mfiltd1, mfiltd2, mfiltd3, mfiltd4,
                                                                                                                     lm1, lm2, lm3, lm4,
                                                                                                                     tmp_buffer)
 
-            print()
-            print('tmp_buffer')
-            print()
-            for k in range(buffer_len + buffer_overlap):
-                print(tmp_buffer[k, :], accel_buffer[k, :])
-            print()
+            # print()
+            # print('tmp_buffer')
+            # print()
+            # for k in range(buffer_len + buffer_overlap):
+            #     print(tmp_buffer[k, :], accel_buffer[k, :])
+            # print()
 
             if det_1>0:
                 last_det_t[0] = time.time()
@@ -159,7 +159,7 @@ def realtime_loop(sensor, led_red, led_green, led_blue):
 
         if time.time() - last_display_time > 0.5:
             print('<<<DET<<< ', time.time()-last_det_t)
-            print('                                                               ', ymfilt1_ii, ymfilt2_ii, ymfilt3_ii, ymfilt4_ii)
+            # print('                                                               ', ymfilt1_ii, ymfilt2_ii, ymfilt3_ii, ymfilt4_ii)
             last_display_time = time.time()
 
         # calculate mean, for webpage bar graph
