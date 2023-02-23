@@ -26,10 +26,10 @@ def run_matched_filters_cython(np.ndarray[np.float64_t, ndim=2] accel_buffer,
                                np.ndarray[np.float64_t, ndim=1] mfiltd2,
                                np.ndarray[np.float64_t, ndim=1] mfiltd3,
                                np.ndarray[np.float64_t, ndim=1] mfiltd4,
-                               np.float64_t lm1,
-                               np.float64_t lm2,
-                               np.float64_t lm3,
-                               np.float64_t lm4,
+                               np.int32_t lm1,
+                               np.int32_t lm2,
+                               np.int32_t lm3,
+                               np.int32_t lm4,
                                np.ndarray[np.float64_t, ndim=2] tmp_out):
 
         #REAL-TIME UPDATE
@@ -75,19 +75,19 @@ def run_matched_filters_cython(np.ndarray[np.float64_t, ndim=2] accel_buffer,
 
             for k in range(lm1):
                 ymfilt1_ii = ymfilt1_ii + mfiltd1[k] * accel_buffer[ii-lm1+k, 0]
-            ymfilt1_ii = 1/lm1 * ymfilt1_ii
+            ymfilt1_ii = 1.0/lm1 * ymfilt1_ii
 
             for k in range(lm2):
                 ymfilt2_ii = ymfilt2_ii + mfiltd2[k] * accel_buffer[ii-lm2+k, 0]
-            ymfilt2_ii = 1/lm2 * ymfilt2_ii
+            ymfilt2_ii = 1.0/lm2 * ymfilt2_ii
 
             for k in range(lm3):
                 ymfilt3_ii = ymfilt3_ii + mfiltd3[k] * accel_buffer[ii-lm3+k, 1]
-            ymfilt3_ii = 1/lm3 * ymfilt3_ii
+            ymfilt3_ii = 1.0/lm3 * ymfilt3_ii
 
             for k in range(lm4):
                 ymfilt4_ii = ymfilt4_ii + mfiltd4[k] * accel_buffer[ii-lm4+k, 1]
-            ymfilt4_ii = 1/lm4 * ymfilt4_ii
+            ymfilt4_ii = 1.0/lm4 * ymfilt4_ii
 
             tmp_out[ii, 0] = ymfilt1_ii
             tmp_out[ii, 1] = ymfilt2_ii
