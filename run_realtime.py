@@ -82,10 +82,10 @@ def realtime_loop(sensor, led_red, led_green, led_blue):
     print('mfiltd3', mfiltd3.shape)  #, mfiltd3)
     print('mfiltd4', mfiltd4.shape)  #, mfiltd4)
 
-    lm1 = mfiltd1.shape[0]
-    lm2 = mfiltd2.shape[0]
-    lm3 = mfiltd3.shape[0]
-    lm4 = mfiltd4.shape[0]
+    lm1 = float(mfiltd1.shape[0])
+    lm2 = float(mfiltd2.shape[0])
+    lm3 = float(mfiltd3.shape[0])
+    lm4 = float(mfiltd4.shape[0])
 
     # mfiltd1 (884,)
     # mfiltd2 (882,)
