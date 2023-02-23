@@ -159,7 +159,7 @@ def realtime_loop(sensor, led_red, led_green, led_blue):
 
         if time.time() - last_display_time > 0.5:
             print('<<<DET<<< ', time.time()-last_det_t)
-            # print('                                                               ', ymfilt1_ii, ymfilt2_ii, ymfilt3_ii, ymfilt4_ii)
+            print('                                                               ', ymfilt1_ii, ymfilt2_ii, ymfilt3_ii, ymfilt4_ii)
             last_display_time = time.time()
 
         # calculate mean, for webpage bar graph
