@@ -104,6 +104,8 @@ def realtime_loop(sensor, led_red, led_green, led_blue):
     last_det_t = np.array([0, 0, 0, 0])
     ymfilt1_ii, ymfilt2_ii, ymfilt3_ii, ymfilt4_ii = 0,0,0,0
 
+    alert_now = 'Normal Driving'
+
     while not START_BUTTON_PUSHED:
 
         # get data
@@ -157,10 +159,22 @@ def realtime_loop(sensor, led_red, led_green, led_blue):
                 accel_buffer[buffer_t, 2] = accel_buffer[buffer_len+buffer_t, 2] 
                 buffer_t += 1
 
-        if time.time() - last_display_time > 0.5:
-            print('<<<DET<<< ', time.time()-last_det_t)
-            print('                                                               ', ymfilt1_ii, ymfilt2_ii, ymfilt3_ii, ymfilt4_ii)
-            last_display_time = time.time()
+            # TODO set alert now based on  time.time()-last_det_t)
+            if time.time() - last_det_t[0] < 1:
+                alert_now = 'Unusual Acceleration!'
+            elif time.time() - last_det_t[1] < 1:
+                alert_now = 'Unusual Braking!'
+            elif time.time() - last_det_t[2] < 1:
+                alert_now = 'Swerve Left!'
+            elif time.time() - last_det_t[3] < 1:
+                alert_now = 'Swerve Right!'
+            else:
+                alert_now = 'Normal Driving'
+            
+        # if time.time() - last_display_time > 0.5:
+        #     print('<<<DET<<< ', time.time()-last_det_t)
+        #     print('                                                               ', ymfilt1_ii, ymfilt2_ii, ymfilt3_ii, ymfilt4_ii)
+        #     last_display_time = time.time()
 
         # calculate mean, for webpage bar graph
         for k in range(3):
@@ -182,11 +196,11 @@ def realtime_loop(sensor, led_red, led_green, led_blue):
             try:
                 #requests.put(url + '/' + '<br><br>' + datetime.now().isoformat() + '<br>accel<br>' + str(accel[0]) + '<br>'+ str(accel[1]) + '<br>'+ str(accel[2])  + '<br>gyro<br>' + str(gyro[0]) + '<br>'+ str(gyro[1]) + '<br>'+ str(gyro[2]) , verify=False, timeout=1.0)
 
-                if time.time() - last_alert_time > 10:
-                    last_alert_time = time.time()
-                    alert_now = 'Unusual Driving Detected!'
-                else:
-                    alert_now = 'Normal Driving'
+                # if time.time() - last_alert_time > 10:
+                #     last_alert_time = time.time()
+                #     alert_now = 'Unusual Driving Detected!'
+                # else:
+                #     alert_now = 'Normal Driving'
 
                 accel_scaled = [0, 0, 0]
                 gyro_scaled = [0, 0, 0]
