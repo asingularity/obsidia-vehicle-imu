@@ -55,10 +55,10 @@ def run_matched_filters_cython(np.ndarray[np.float64_t, ndim=2] accel_buffer,
         ymfilt3_prev = 0
         ymfilt4_prev = 0
 
-        THdet1=7.9853      #detection threshold for matched filter1
-        THdet2=3.3         #detection threshold for matched filter2
-        THdet3=3.1         #detection threshold for matched filter3
-        THdet4=4.0         #detection threshold for matched filter4
+        THdet1=7.9853 * 0.75      #detection threshold for matched filter1
+        THdet2=3.3 * 0.75         #detection threshold for matched filter2
+        THdet3=3.1 * 0.75         #detection threshold for matched filter3
+        THdet4=4.0 * 0.75         #detection threshold for matched filter4
         fs=410.3614         #sampling rate that best matches to the actual samples
 
         for ii in range(new_data_index, new_data_index + buffer_len):

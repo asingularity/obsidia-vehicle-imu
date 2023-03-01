@@ -161,16 +161,16 @@ def realtime_loop(sensor, led_red, led_green, led_blue):
 
             # TODO set alert now based on  time.time()-last_det_t)
             if time.time() - last_det_t[0] < 1:
-                alert_now = 'Unusual Acceleration!'
+                alert_now = '<b><font color="white">Unusual Acceleration!</font></b>'
             elif time.time() - last_det_t[1] < 1:
-                alert_now = 'Unusual Braking!'
+                alert_now = '<b><font color="white">Unusual Braking!</font></b>'
             elif time.time() - last_det_t[2] < 1:
-                alert_now = 'Swerve Left!'
+                alert_now = '<b><font color="white">Swerve Left!</font></b>'
             elif time.time() - last_det_t[3] < 1:
-                alert_now = 'Swerve Right!'
+                alert_now = '<b><font color="white">Swerve Right!</font></b>'
             else:
-                alert_now = 'Normal Driving'
-            
+                alert_now = '<b>Normal Driving</b>'
+
         # if time.time() - last_display_time > 0.5:
         #     print('<<<DET<<< ', time.time()-last_det_t)
         #     print('                                                               ', ymfilt1_ii, ymfilt2_ii, ymfilt3_ii, ymfilt4_ii)
