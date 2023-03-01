@@ -106,7 +106,7 @@ page_test = '''
           bar.style.height = height + "px";
         });
     
-        //message.innerHTML = data.alert;
+        message.innerHTML = data.alert;
         //if (data.alert.startsWith("Normal")) {
         //  document.body.style.backgroundColor = "white";
         //} else {
