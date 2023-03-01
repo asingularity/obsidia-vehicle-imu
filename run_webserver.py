@@ -107,11 +107,11 @@ page_test = '''
         });
     
         message.innerHTML = data.alert;
-        //if (data.alert.startsWith("Normal")) {
-        //  document.body.style.backgroundColor = "white";
-        //} else {
-        //  document.body.style.backgroundColor = "red";
-        //}
+        if (data.alert.startsWith("Normal")) {
+          document.body.style.backgroundColor = "white";
+        } else {
+          document.body.style.backgroundColor = "red";
+        }
                 
       });
   }
