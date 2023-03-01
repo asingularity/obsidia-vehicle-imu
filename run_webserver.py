@@ -108,10 +108,12 @@ page_test = '''
     
         message.innerHTML = data.alert;
         if (data.alert.startsWith("Normal")) {
-          document.body.style.backgroundColor = "white";
+          //document.body.style.backgroundColor = "white";
+          message.style.backgroundColor = "white";
           message.style.color = "black";
         } else {
-          document.body.style.backgroundColor = "red";
+          //document.body.style.backgroundColor = "red";
+          message.style.backgroundColor = "red";
           message.style.color = "white";
         }
                 
