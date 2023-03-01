@@ -106,12 +106,12 @@ page_test = '''
           bar.style.height = height + "px";
         });
     
-        message.innerHTML = data.alert;
-        if (data.alert.startsWith("Normal")) {
-          document.body.style.backgroundColor = "white";
-        } else {
-          document.body.style.backgroundColor = "red";
-        }
+        //message.innerHTML = data.alert;
+        //if (data.alert.startsWith("Normal")) {
+        //  document.body.style.backgroundColor = "white";
+        //} else {
+        //  document.body.style.backgroundColor = "red";
+        //}
                 
       });
   }
